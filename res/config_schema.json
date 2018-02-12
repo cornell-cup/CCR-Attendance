@@ -1,0 +1,15 @@
+{
+    "title":"CCRAttendanceConfig",
+    "type":"object",
+    "properties":{
+        "active_table_range":{
+            "type":"string"
+        },
+        "swipes_log_range":{
+            "type":"string"
+        },
+        "sheet_id":{
+            "type":"string"
+        }
+    }
+}

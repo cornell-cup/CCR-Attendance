@@ -1,7 +1,8 @@
 import sys
 import os
-sys.path.insert(0,os.getcwd()+"/src")
+sys.path.insert(0,os.getcwd()+"../src")
 import CCRAttendance
+import CCRResources
 
 try:
     import argparse
@@ -14,5 +15,6 @@ except ImportError:
     flags = None
 
 if __name__ == 'main':
+    CCRAttendance.populate("res")
     CCRAttendance.make_interface(flags.client_secret,flags.application_name,flags.config_file)
     #TODO: Read RFID, Update Sheets, etc. Probably should be done Asynchronously

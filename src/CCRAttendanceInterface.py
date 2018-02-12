@@ -1,17 +1,16 @@
 import json
 import jsonschema
 from jsonschema import validate
+from CCRResources import res
 import time
 
 
-config_schema = json.load(open("res/config_schema.json"))
 
 class CCRAttendanceInterface:
-
-
     def __init__(self,service, configFile):
         self._service = service
         self._configFile = configFile
+        self.config_schema = json.load(open(res("config_schema.json")))
         self.reload_config_file()
 
     def clear_attendence_log(self):
@@ -45,7 +44,7 @@ class CCRAttendanceInterface:
         '''
         try:
             config = json.load(open(self._configFile))
-            validate(config,config_schema)
+            validate(config,self.config_schema)
             self._config = json.load(open(self._configFile))
         except jsonschema.ValidationError:
             print("Invalid config file: " + self._config)

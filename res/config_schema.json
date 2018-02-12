@@ -8,6 +8,9 @@
         "swipes_log_range":{
             "type":"string"
         },
+        "timeouts_log_range":{
+            "type":"string"
+        },
         "sheet_id":{
             "type":"string"
         }

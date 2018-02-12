@@ -26,3 +26,10 @@ def test_swipe_out():
     c.log_swipe("Lucas")
     c.log_swipe("Lucas")
     assert c.get_active_users() == []
+
+def test_timeout():
+    c = CCRAttendance.open_interface(res("client_secret.json"),"Node",res("config.json"))
+    c.clear_attendence_log()
+    c.log_swipe("Lucas")
+    c.log_timeout("Lucas",2)
+    assert c.get_active_users() == []

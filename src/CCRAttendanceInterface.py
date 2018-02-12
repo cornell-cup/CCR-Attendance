@@ -19,9 +19,11 @@ class CCRAttendanceInterface:
             in the provided configuration file.
         '''
 
-        body = {}
-        self._service.spreadsheets().values().clear(
-            spreadsheetId=self._config["sheet_id"], range=self._config["swipes_log_range"],body=body).execute()
+        body = {
+            'ranges': [self._config["swipes_log_range"],self._config["timeout_log_range"]]
+        }
+        self._service.spreadsheets().values().batchClear(
+            spreadsheetId=self._config["sheet_id"],body=body).execute()
 
     def get_active_users(self):
         '''
@@ -55,6 +57,13 @@ class CCRAttendanceInterface:
 
         self._service.spreadsheets().values().append(
             spreadsheetId=self._config["sheet_id"], range=self._config["swipes_log_range"],valueInputOption="RAW",
+            body=body).execute()
+
+    def log_timeout(self,userID,row):
+        values = [[userID,row]]
+        body = {'values': values}
+        self._service.spreadsheets().values().append(
+            spreadsheetId=self._config["sheet_id"], range=self._config["timeout_log_range"],valueInputOption="RAW",
             body=body).execute()
 
     def _log_swipe_out(self,sessionRow):

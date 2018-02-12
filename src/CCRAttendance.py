@@ -1,18 +1,12 @@
 from __future__ import print_function
 import httplib2
-from CRRAttendanceInterface import CRRAttendanceInterface
+from CCRAttendanceInterface import CCRAttendanceInterface
 import os
 
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CREDENTIAL_FILE_NAME = 'ccr.attendance.json'
@@ -30,10 +24,7 @@ def get_credentials(clientSecret,applicationName,scope):
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(clientSecret, scope)
         flow.user_agent = applicationName
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
+        credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
 
@@ -45,4 +36,4 @@ def open_interface(clientSecret, applicationName, config_file):
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
 
-    return CRRAttendanceInterface(service,config_file)
+    return CCRAttendanceInterface(service,config_file)

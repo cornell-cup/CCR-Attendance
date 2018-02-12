@@ -4,9 +4,9 @@ from jsonschema import validate
 import time
 
 
-config_schema = json.load(open("../res/config_schema.json"))
+config_schema = json.load(open("res/config_schema.json"))
 
-class CRRAttendanceInterface:
+class CCRAttendanceInterface:
 
 
     def __init__(self,service, configFile):

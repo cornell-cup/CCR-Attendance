@@ -28,7 +28,7 @@ rfid_read_hz = 100.0
 async def rfid_read_job():
     while running:
         id = await reader.read_value() #This should be asyncronous. 
-                             #Have a while to the reading till be get something meaningful and a async sleep
+                                       #Have a while to the reading till be get something meaningful and a async sleep
         if id is not None:
             interface.log_swipe(id)
             

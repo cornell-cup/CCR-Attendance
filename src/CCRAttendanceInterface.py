@@ -59,12 +59,13 @@ class CCRAttendanceInterface:
             spreadsheetId=self._config["sheet_id"], range=self._config["swipes_log_range"],valueInputOption="RAW",
             body=body).execute()
 
-    def log_timeout(self,userID,row):
-        values = [[userID,row]]
+    def log_timeout(self,row):
+        values = [['TIMEOUT']]
         body = {'values': values}
-        self._service.spreadsheets().values().append(
-            spreadsheetId=self._config["sheet_id"], range=self._config["timeout_log_range"],valueInputOption="RAW",
-            body=body).execute()
+        self._service.spreadsheets().values().update(
+            spreadsheetId=self._config["sheet_id"], range="D"+str(row),
+            valueInputOption="RAW", body=body).execute()
+
 
     def _log_swipe_out(self,sessionRow):
         values = [[time.time()]]

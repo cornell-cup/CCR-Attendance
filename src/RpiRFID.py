@@ -9,5 +9,6 @@ class RpiRFID:
     def read_value()
         while True:
             async.sleep(rfid_read_sleep)
+                ##READ SPI untils something meaningful comes out
                 
             

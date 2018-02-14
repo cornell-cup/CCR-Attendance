@@ -1,6 +1,6 @@
 {
-    "active_table_range":"Attendance Log!F2:H",
-    "swipes_log_range":"Attendance Log!A2:C",
-    "timeout_log_range":"Attendance Log!J2:K",
+    "active_table_range":"Attendance Log!G2:I",
+    "swipes_log_range":"Attendance Log!A2:E",
+    "timeout_log_range":"Attendance Log!K2:L",
     "sheet_id":"1Zd_wqWmi-ctm_Mrw7ZDz7Nr4abn4IHmVKxMlC9xisek"
 }

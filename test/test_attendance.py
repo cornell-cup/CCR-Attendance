@@ -33,3 +33,4 @@ def test_timeout():
     c.log_swipe("Lucas")
     c.log_timeout(2)
     assert c.get_active_users() == []
+

@@ -24,7 +24,7 @@ def get_credentials(clientSecret,applicationName,scope):
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(clientSecret, scope)
         flow.user_agent = applicationName
-        credentials = tools.run(flow, store)
+        credentials = tools.run_flow(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
 

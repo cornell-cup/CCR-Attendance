@@ -12,13 +12,14 @@ try:
     parser.add_argument("client_secret")
     parser.add_argument("application_name")
     parser.add_argument("config_file")
-    parser.add_argument("server_ip")
+    parser.add_argument("endpoint")
     flags = parser.parse_args()
 except ImportError:
     flags = None
 
 CCRResources.populate("res")
-interface = CCRAttendance.make_interface(flags.client_secret,flags.application_name,flags.config_file)
+interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
+server = CRRAttendance.connect_server(flags.endpoint)
 reader = RpiRFID(0)
 loop = asyncio.get_event_loop()
 scan_queue = asyncio.Queue(loop=loop)

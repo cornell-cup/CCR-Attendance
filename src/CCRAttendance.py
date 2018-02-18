@@ -1,5 +1,6 @@
 from __future__ import print_function
 import httplib2
+import CCRAttendanceServerInterface
 from CCRAttendanceDB import CCRAttendanceDB
 import os
 
@@ -28,7 +29,7 @@ def get_credentials(clientSecret,applicationName,scope):
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def open_interface(clientSecret, applicationName, config_file):
+def open_db_interface(clientSecret, applicationName, config_file):
     credentials = get_credentials(clientSecret,applicationName,SCOPES)
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
@@ -37,3 +38,6 @@ def open_interface(clientSecret, applicationName, config_file):
                               discoveryServiceUrl=discoveryUrl)
 
     return CCRAttendanceDB(service,config_file)
+
+def connect_server(endpoint):
+    return CCRAttendanceServerInterface(endpoint)

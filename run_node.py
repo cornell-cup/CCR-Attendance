@@ -16,7 +16,6 @@ try:
 except ImportError:
     flags = None
 
-
 CCRResources.populate("res")
 interface = CCRAttendance.make_interface(flags.client_secret,flags.application_name,flags.config_file)
 reader = RpiRFID(0)
@@ -25,12 +24,14 @@ scan_queue = asyncio.Queue(loop=loop)
 running = True
 rfid_read_hz = 100.0
 
-async def rfid_read_job():
+def sign_in_job():
     while running:
         id = await reader.read_value() #This should be asyncronous. 
                                        #Have a while to the reading till be get something meaningful and a async sleep
         if id is not None:
-            interface.log_swipe(id)
+            server.swiped(id)
+            #response = await server.prompt_meeting_selection(id)
+            #interface.log_swipe(id,response["meeting"])
             
 
 if __name__ == 'main':

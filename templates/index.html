@@ -10,6 +10,7 @@
 
 	<!-- Custom styles -->
 	<link rel="stylesheet" href="{{ url_for('static', filename='magister.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='scrambler.css') }}">
 
 	<!-- Fonts -->
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -18,6 +19,7 @@
 
 <!-- use "theme-invert" class on bright backgrounds, also try "text-shadows" class -->
 <body class="theme-invert" style="">
+<div id="messenger"></div>
 
 
 <!-- Main (Home) section -->
@@ -51,5 +53,7 @@
 <script src="{{ url_for('static', filename='modernizr.custom.72241.js') }}"></script>
 <!-- Custom template scripts -->
 <script src="{{ url_for('static', filename='magister.js') }}"></script>
+<script src="{{ url_for('static', filename='scrambler.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
 
 </body></html>

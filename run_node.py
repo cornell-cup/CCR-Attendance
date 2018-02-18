@@ -12,6 +12,7 @@ try:
     parser.add_argument("client_secret")
     parser.add_argument("application_name")
     parser.add_argument("config_file")
+    parser.add_argument("server_ip")
     flags = parser.parse_args()
 except ImportError:
     flags = None
@@ -26,13 +27,9 @@ rfid_read_hz = 100.0
 
 def sign_in_job():
     while running:
-        id = await reader.read_value() #This should be asyncronous. 
-                                       #Have a while to the reading till be get something meaningful and a async sleep
+        id = await reader.read_value()                    
         if id is not None:
             server.swiped(id)
-            #response = await server.prompt_meeting_selection(id)
-            #interface.log_swipe(id,response["meeting"])
-            
 
 if __name__ == 'main':
     #TODO: Read RFID, Update Sheets, etc. Probably should be done Asynchronously

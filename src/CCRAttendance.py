@@ -1,6 +1,6 @@
 from __future__ import print_function
 import httplib2
-from CCRAttendanceInterface import CCRAttendanceInterface
+from CCRAttendanceDB import CCRAttendanceDB
 import os
 
 from apiclient import discovery
@@ -36,4 +36,4 @@ def open_interface(clientSecret, applicationName, config_file):
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
 
-    return CCRAttendanceInterface(service,config_file)
+    return CCRAttendanceDB(service,config_file)

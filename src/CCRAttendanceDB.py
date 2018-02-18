@@ -4,7 +4,7 @@ from jsonschema import validate
 from CCRResources import res
 import time
 
-class CCRAttendanceInterface:
+class CCRAttendanceDB:
     def __init__(self,service, configFile):
         self._service = service
         self._configFile = configFile

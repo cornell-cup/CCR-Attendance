@@ -4,8 +4,6 @@ from jsonschema import validate
 from CCRResources import res
 import time
 
-
-
 class CCRAttendanceInterface:
     def __init__(self,service, configFile):
         self._service = service
@@ -74,6 +72,11 @@ class CCRAttendanceInterface:
             spreadsheetId=self._config["sheet_id"], range="C"+str(sessionRow),
             valueInputOption="RAW", body=body).execute()
 
+    def get_mettings_list(self):
+        result = self._service.spreadsheets().values().get(
+            spreadsheetId=self._config["sheet_id"], range=self._config["meetings_list_range"]).execute()
+        return result.get("values",[])
+
     def log_swipe(self,userID,cached_active_users=None):
         '''
             Logs a user swipe. Will be logged as a swipe-in if the user is
@@ -85,5 +88,17 @@ class CCRAttendanceInterface:
                 self._log_swipe_out(log[2])
                 return 
         self._log_swipe_in(userID)
+
+    def get_user_id_map(self):
+        result = self._service.spreadsheets().values().get(
+            spreadsheetId=self._config["sheet_id"], range=self._config["users_list_range"]).execute()
+        return result.get("values",[])
+
+    def get_name_from_ID(self,id,user_cache=None):
+        users =  user_cache if user_cache != None else self.get_user_id_map()
+        for user_id_map in users:
+            if user_id_map[0] == id:
+                return user_id_map[1]
+
 
     

@@ -14,29 +14,32 @@
 	<!-- Fonts -->
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 	<link href="http://fonts.googleapis.com/css?family=Wire+One" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <!-- Load js libs only when the page is loaded. -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='modernizr.custom.72241.js') }}"></script>
+    <!-- Custom template scripts -->
+    <script src="{{ url_for('static', filename='magister.js') }}"></script>
 </head>
 
 <!-- use "theme-invert" class on bright backgrounds, also try "text-shadows" class -->
 <body class="theme-invert" style="">
+<script>
+</script>
 
-
-<!-- Main (Home) section -->
 <section class="section" id="head">
 	<div class="container">
 
 		<div class="row">
 			<div class="col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 text-center">	
 
-				<!-- Site Title, your name, HELLO msg, etc. -->
 				<h1 class="title">Hello, </h1>
 				
 
-				<!-- Short introductory (optional) -->
 				<h3 class="tagline">
 					Ermagerd Cornell Kup is soooo kool.
 				</h3>
-				
-				<!-- Nice place to describe your site in a sentence or two -->
 				
 	
 			</div> <!-- /col -->
@@ -45,11 +48,5 @@
 	</div>
 </section>
 
-<!-- Load js libs only when the page is loaded. -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-<script src="{{ url_for('static', filename='modernizr.custom.72241.js') }}"></script>
-<!-- Custom template scripts -->
-<script src="{{ url_for('static', filename='magister.js') }}"></script>
-
-</body></html>
+</body>
+</html>

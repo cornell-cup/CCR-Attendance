@@ -4,7 +4,7 @@ from jsonschema import validate
 from CCRResources import res
 import time
 
-class CCRAttendanceInterface:
+class CCRAttendanceDB:
     def __init__(self,service, configFile):
         self._service = service
         self._configFile = configFile
@@ -99,3 +99,11 @@ class CCRAttendanceInterface:
         for user_id_map in users:
             if user_id_map[0] == id:
                 return user_id_map[1]
+
+    def register_user(self,name,uid):
+        values = [[name,uid]]
+        body = {'values': values}
+
+        self._service.spreadsheets().values().append(
+            spreadsheetId=self._config["sheet_id"], range=self._config["users_list_range"],valueInputOption="RAW",
+            body=body).execute()

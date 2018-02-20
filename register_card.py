@@ -1,10 +1,9 @@
 import sys
 import os
 sys.path.insert(0,os.getcwd()+"/src")
-import CCRAttendance
-import CCRResources
-import asyncio
 from RpiRFID import RpiRFID
+import CCRAttendanceimport signal
+
 
 try:
     import argparse
@@ -19,19 +18,27 @@ except ImportError:
 
 CCRResources.populate("res")
 interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
-server = CRRAttendance.connect_server(flags.endpoint)
-reader = RpiRFID()
-loop = asyncio.get_event_loop()
-scan_queue = asyncio.Queue(loop=loop)
-running = True
-rfid_read_hz = 100.0
+signal.signal(signal.SIGINT, end_read)
 
-def sign_in_job():
-    while running:
-        id = await reader.read_value()                    
-        if id is not None:
-            server.swiped(id)
+read = True
 
-if __name__ == 'main':
-    #TODO: Read RFID, Update Sheets, etc. Probably should be done Asynchronously
+def end_read(signal,frame):
+    global read
+    print "Ctrl+C captured, ending read."
+    read = False
+    GPIO.cleanup()
+
+def main():
+    while read:
+        reader = RpiRFID()
+        print("Looking for card...")
+        uid = reader.read()
+        print("Found card: %i",uid)
+        name = raw_input("Name: ")
+        interface.register_user(name,uid)
+
+
+
+
+
 

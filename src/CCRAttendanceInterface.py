@@ -16,7 +16,7 @@ class CCRAttendanceInterface:
             Clears the cells in the range specified as "swipes_log_range"
             in the provided configuration file.
         '''
-
+        
         body = {
             'ranges': [self._config["swipes_log_range"],self._config["timeout_log_range"]]
         }
@@ -99,6 +99,3 @@ class CCRAttendanceInterface:
         for user_id_map in users:
             if user_id_map[0] == id:
                 return user_id_map[1]
-
-
-    

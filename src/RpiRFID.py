@@ -1,15 +1,17 @@
+import RPi.GPIO as GPIO
+import MFRC522
+
 rfid_read_sleep = 1.0
-do_read = true
+do_read = True
 
 class RpiRFID:
-    def __init__(self,spi_port):
+    def __init__(self):
         self._reader = None
 
     def init(self):
-        signal.signal(signal.SIGINT, end_read)
         self._reader = MFRC522.MFRC522()
 
-    def read_value()
+    def read_value(self):
         while do_read:
             (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 

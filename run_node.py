@@ -17,9 +17,10 @@ try:
 except ImportError:
     flags = None
 
+api_key = "test_key"
 CCRResources.populate("res")
 interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
-server = CRRAttendance.connect_server(flags.endpoint)
+server = CRRAttendance.connect_server(flags.endpoint,api_key)
 reader = RpiRFID()
 loop = asyncio.get_event_loop()
 scan_queue = asyncio.Queue(loop=loop)
@@ -28,7 +29,7 @@ rfid_read_hz = 100.0
 
 def sign_in_job():
     while running:
-        id = await reader.read_value()                    
+        id = reader.read_value()                    
         if id is not None:
             server.swiped(id)
 

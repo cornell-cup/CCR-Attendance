@@ -1,3 +1,4 @@
+
 import sys
 import os
 sys.path.insert(0,os.getcwd()+"/src")
@@ -6,11 +7,11 @@ from flask import Flask, render_template
 import CCRAttendance
 import CCRResources
 from CCRResources import res
-
-app = Flask(__name__)
+from multiprocessing import Process
 
 CCRResources.populate("res")
 db = CCRAttendance.open_db_interface(res("client_secret.json"),"Node",res("config.json"))
+app = Flask(__name__) 
 
 def validate_key(key):
     return False #TODO: Change this to actually validate a key
@@ -27,6 +28,14 @@ def logSwipe(api_key,swipe_id):
     else:
         data = {"key" : api_key, "ID":swipe_id, "success":False}
         return flask.jsonify(**data)
-        
-if __name__ == '__main__':
-    app.run(debug=True)
+
+class CCRAttendanceServer:
+    def __init__(self):
+        self._server = Process(target=app.run)
+
+    def run(self):
+        self._server.start()
+
+    def stop(self):
+        self._server.terminate()
+        self._server.join()

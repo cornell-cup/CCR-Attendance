@@ -1,12 +1,18 @@
 import websocket
 import json
 from websocket import create_connection
+import requests
+
+scanner_route = "/scanners/"
 
 class CCRAttendanceServerInterface:
-    def __init__(self,endpoint):
-        self._ws = create_connection(endpoint)
-        
+    def __init__(self,endpoint,key):
+        self._endpoint = endpoint
+        self._key = key
+
     def swipe(self,uid):
-        data = {"UID" : uid}
-        self._ws.send(json.dumps([json.dumps(data)]))
+        response = requests.post(self._endpoint + scanner_route + self._key "/" + uid, data = None).json()
+        return response["success"]
+    
+
         

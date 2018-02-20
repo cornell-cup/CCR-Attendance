@@ -1,7 +1,8 @@
 import RPi.GPIO as GPIO
-import MFRC522
+from MFRC522 import MFRC522
+import time 
 
-rfid_read_sleep = 1.0
+rfid_read_sleep = .001 # seconds
 do_read = True
 
 class RpiRFID:
@@ -9,19 +10,20 @@ class RpiRFID:
         self._reader = None
 
     def init(self):
-        self._reader = MFRC522.MFRC522()
+        self._reader = MFRC522()
 
     def read_value(self):
         while do_read:
-            (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+            time.sleep(rfid_read_sleep)
+            (status,_) = self._reader.MFRC522_Request(MFRC522.PICC_REQIDL)
 
-            if status == MIFAREReader.MI_OK:
-                (status,uid) = MIFAREReader.MFRC522_Anticoll()
+            if status == MFRC522.MI_OK:
+                (status,uid) = self._reader.MFRC522_Anticoll()
 
-            if status == MIFAREReader.MI_OK:    
+            if status == MFRC522.MI_OK:    
                 return uid
 
-    def stop():
+    def stop(self):
         do_read = False
                 
             

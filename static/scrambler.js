@@ -1,5 +1,5 @@
 
-var Messenger = function(el){
+var Messenger = function(el, name){
     'use strict';
     var m = this;
     
@@ -9,13 +9,10 @@ var Messenger = function(el){
       m.current_length = 0;
       m.fadeBuffer = false;
       m.messages = [
-        'This is a message, which can be long and all.',
-        'This could be another message.',
-        'Also short ones work!',
-        'Cool.'
+        name
       ];
-      
-      setTimeout(m.animateIn, 100);
+
+      setTimeout(m.animateIn, 200);
     };
     
     m.generateRandomString = function(length){
@@ -52,7 +49,7 @@ var Messenger = function(el){
       }
       
       var do_cycles = false;
-      var message = ''; 
+      var message =  "Hello, "
       
       for(var i = 0; i < m.fadeBuffer.length; i++){
         var fader = m.fadeBuffer[i];
@@ -69,26 +66,9 @@ var Messenger = function(el){
       
       if(do_cycles === true){
         setTimeout(m.animateFadeBuffer, 50);
-      } else {
-        setTimeout(m.cycleText, 2000);
       }
     };
-    
-    m.cycleText = function(){
-      m.message = m.message + 1;
-      if(m.message >= m.messages.length){
-        m.message = 0;
-      }
-      
-      m.current_length = 0;
-      m.fadeBuffer = false;
-      $(el).html('');
-      
-      setTimeout(m.animateIn, 200);
-    };
+
     
     m.init();
   }
-  
-  console.clear();
-  var messenger = new Messenger($('#messenger'));

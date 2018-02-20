@@ -4,40 +4,75 @@
 	<meta name="description" content="">
 
 	<link rel="shortcut icon" href="gt_favicon.png">
-	
-	<!-- Bootstrap itself -->
+
 	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
-	<!-- Custom styles -->
 	<link rel="stylesheet" href="{{ url_for('static', filename='magister.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='scrambler.css') }}">
 
-	<!-- Fonts -->
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 	<link href="http://fonts.googleapis.com/css?family=Wire+One" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='modernizr.custom.72241.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='magister.js') }}"></script>
+    <script src="{{ url_for('static', filename='scrambler.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+
+    <script src="{{ url_for('static', filename='magister.js') }}"></script>
 </head>
 
-<!-- use "theme-invert" class on bright backgrounds, also try "text-shadows" class -->
 <body class="theme-invert" style="">
-<div id="messenger"></div>
+<script>
+</script>
 
-
-<!-- Main (Home) section -->
 <section class="section" id="head">
 	<div class="container">
 
 		<div class="row">
 			<div class="col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 text-center">	
 
+                <p id="messenger"> Hello,
+                </p>
+
+                <script>
+                  var messenger = new Messenger($('#messenger'), "Lucas");
+                </script>
+                <br>
+                <br>
+                <script>
+                    var socket = io.connect('http://' + document.domain + ':' + location.port);
+                    socket.on('echo', function(data){
+                        $('#response').html('<p>'+data.echo+'</p>');
+                    });
+
+                    function send(){
+                        socket.emit('send_message', {message : $('form textarea').val()});
+                    }
+                  </script>
 				<!-- Site Title, your name, HELLO msg, etc. -->
 				<h1 class="title">Hello,</h1>
 				
 
-				<!-- Short introductory (optional) -->
 				<h3 class="tagline">
 					Ermagerd Cornell Kup is soooo kool.
 				</h3>
+<<<<<<< HEAD
 								
+=======
+
+                <div class="input">
+                    <form>
+                        <textarea placeholder="Send a message to the server..."></textarea>
+                        <button type="button" onclick="send(); return false;">Send</button>
+                    </form>
+                </div>
+                <div id="response">
+                </div>
+>>>>>>> a78509ff684b23bd1a01d5cfb17ee6e9390bdcb5
 	
 			</div> <!-- /col -->
 		</div> <!-- /row -->
@@ -45,12 +80,5 @@
 	</div>
 </section>
 
-<!-- Load js libs only when the page is loaded. -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-<script src="{{ url_for('static', filename='modernizr.custom.72241.js') }}"></script>
-<!-- Custom template scripts -->
-<script src="{{ url_for('static', filename='magister.js') }}"></script>
-<script src="{{ url_for('static', filename='scrambler.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-</body></html>
+</body>
+</html>

@@ -1,6 +1,5 @@
 from __future__ import print_function
 import httplib2
-import CCRAttendanceServerInterface
 from CCRAttendanceDB import CCRAttendanceDB
 import os
 
@@ -38,6 +37,3 @@ def open_db_interface(clientSecret, applicationName, config_file):
                               discoveryServiceUrl=discoveryUrl)
 
     return CCRAttendanceDB(service,config_file)
-
-def connect_server(endpoint):
-    return CCRAttendanceServerInterface(endpoint)

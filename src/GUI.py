@@ -5,7 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.lang import Builder
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
 #from CCRAttendance import CCRAttendance 
@@ -36,6 +36,8 @@ ScreenManagement:
         id: other
     MeetingScreen:
         id: meeting
+    TeamScreen:
+        id: teams
 
 <IdleScreen>:
     name: "idle"
@@ -62,29 +64,83 @@ ScreenManagement:
     BoxLayout:
         orientation: "vertical"
         Label:
-            id: meeting_message
-            text: ""
+            text: root.meeting_message
+            font_size: 30
         Label:
             text: "What type of meeting are you signing in to?"
+            font_size: 30
         BoxLayout:
             id: b1
             orientation: "horizontal"
             Button: 
                 text: "Work Meeting"
                 on_press: root.update_meeting("Work")
-                on_release: app.root.current = "team"
+                on_release: app.root.current = "teams"
             Button: 
                 text: "Dave Meeting"
                 on_press: root.update_meeting("Dave")
-                on_release: app.root.current = "team"
+                on_release: app.root.current = "teams"
             Button: 
                 text: "Make-Up Meeting"
                 on_press: root.update_meeting("Make-up")
-                on_release: app.root.current = "team"
+                on_release: app.root.current = "teams"
 
 
+<TeamScreen>:
+    name: "teams"
+    BoxLayout:
+        orientation : "vertical"
+        Label:
+            text: root.team_messsage
+            font_size: 30
+        Label:
+            text: "Which subteam are you on?"
+            font_size: 30
+        GridLayout:
+            id: g1
+            cols: 2
+            Button: 
+                text: "Wall"
+                on_press: root.update_team("Wall")
+                on_release: app.root.current = "idle"
+            Button: 
+                text: "Pogo"
+                on_press: root.update_team("Pogo")
+                on_release: app.root.current = "idle"
+            Button: 
+                text: "Minibot"
+                on_press: root.update_team("Minibot")
+                on_release: app.root.current = "idle"
+            Button: 
+                text: "Experimental"
+                on_press: root.update_team("Experimental")
+                on_release: app.root.current = "idle"
 
 '''
+
+class MeetingScreen(Screen):
+    def __init__(self, **kwargs):
+        super(MeetingScreen, self).__init__(**kwargs)
+        if currentUser.direction == "IN":
+            self.update_in()
+
+    def update_in(self):
+        print(currentUser.name)
+        self.meeting_message = "Welcome, " + currentUser.name + "!"
+        currentUser.greeting =  "Welcome, " + currentUser.name + "!"
+
+    def update_meeting(self, meeting):
+        currentUser.meeting = meeting
+
+class TeamScreen(Screen):
+    def __init__(self, **kwargs):
+        super(TeamScreen, self).__init__(**kwargs)
+        self.team_messsage = currentUser.greeting
+
+    def update_team(self, team):
+        currentUser.team = team
+
+
 class MainScreen(Screen):
     pass
 
@@ -111,22 +167,6 @@ class IdleScreen(Screen):
         print(self)
         self.parent.current = "meeting"
 
-
-class MeetingScreen(Screen):
-    meeting_message = StringProperty()
-    def __init__(self, **kwargs):
-        super(MeetingScreen, self).__init__(**kwargs)
-        if currentUser.direction == "IN":
-            Clock.schedule_once(self.update_in, 1 / 60)
-
-    def update_in(self, dt):
-        print(currentUser.name)
-        time.sleep(1)
-        self.meeting_message = "Welcome, " + currentUser.name + "!"
-        currentUser.greeting =  "Welcome, " + currentUser.name + "!"
-
-    def update_meeting(self, meeting):
-        currentUser.meeting = meeting
 
 
 class ScreenManagement(ScreenManager):

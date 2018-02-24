@@ -25,7 +25,7 @@ def get_credentials(clientSecret,applicationName,scope):
         flow = client.flow_from_clientsecrets(clientSecret, scope)
         flow.user_agent = applicationName
         credentials = tools.run_flow(flow, store)
-        print('Storing credentials to ' + credential_path)
+        print('Storiabotng credentials to ' + credential_path)
     return credentials
 
 def open_db_interface(clientSecret, applicationName, config_file):

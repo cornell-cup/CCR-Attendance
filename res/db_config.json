@@ -2,7 +2,8 @@
     "active_table_range":"Attendance Log!I2:K",
     "swipes_log_range":"Attendance Log!A2:F",
     "timeout_log_range":"Attendance Log!M2:O",
-    "project_list_range":"Projects!A2:B",
+    "projects_list_range":"Meetings!A2:A",
+    "meetings_list_range":"Meetings!B2:B",
     "users_list_range":"Users!A2:B",
     "sheet_id":"1Zd_wqWmi-ctm_Mrw7ZDz7Nr4abn4IHmVKxMlC9xisek"
 }

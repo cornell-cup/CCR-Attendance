@@ -8,19 +8,21 @@ from kivy.lang import Builder
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
-#from CCRAttendance import CCRAttendance 
+from CCRAttendanceNode import CCRAttendanceNode 
 import time
 
 class User:
     def __init__(self):
         self.name = ""
+        self.id = ""
         self.direction = ""
         self.row = ""
         self.greeting = ""
         self.meeting = ""
         self.team = ""
 
-#node = CCRAttendanceNode("a","b","c")
+node = CCRAttendanceNode("a","b","c")
+
 #node.start_swipe_logging_job()
 currentUser = User()
 
@@ -139,6 +141,10 @@ class TeamScreen(Screen):
 
     def update_team(self, team):
         currentUser.team = team
+
+        #send user data to sheets
+        node.log_swipe_in(currentUser.id,currentUser.project,currentUser.team)
+        
 
 
 class MainScreen(Screen):

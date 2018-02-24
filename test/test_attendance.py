@@ -37,5 +37,15 @@ def test_timeout():
 def test_projects_list():
     db = CCRAttendance.open_db_interface(res("client_secret.json"),"Node",res("db_config.json"))
     projects = db.get_projects_list()
-    assert projects == [{"name":"Minibot","teams":["Vision","Base","Crying"]}]
+    assert projects == ["Minibot","Vision","Merc"]
+
+def test_projects_list():
+    db = CCRAttendance.open_db_interface(res("client_secret.json"),"Node",res("db_config.json"))
+    projects = db.get_projects_list()
+    assert projects == ["Minibot","Vision","Merc"]
+
+def test_meetings_list():
+    db = CCRAttendance.open_db_interface(res("client_secret.json"),"Node",res("db_config.json"))
+    projects = db.get_meetings_list()
+    assert projects == ["Dave","Saturday Work"]
 

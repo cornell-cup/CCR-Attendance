@@ -19,7 +19,7 @@ class CCRAttendanceNode:
         self._listeners = []
         # swipes that were sucessfully logged by db, will be added to a queue
         self._swipe_queue = []
-        self._db = CCRAttendance.open_db_interface(client_secret,application_name,config_file)
+        self.db = CCRAttendance.open_db_interface(client_secret,application_name,config_file)
         self._cache = {}
         self._running = False
         self._queue_mutex = Lock()
@@ -35,17 +35,17 @@ class CCRAttendanceNode:
         while self._running:
             id = self._reader.read_value()                    
             if id is not None:
-                if self._db.validate_uid(id):
+                if self.db.validate_uid(id):
                     self.queue_swipe(id)
 
     def log_swipe_in(self,id,project,team):
-        self._db.log_swipe_in(id,project,team)
+        self.db.log_swipe_in(id,project,team)
 
     def log_swipe_out(self,id):
-        self._db.log_swipe_out(id)
+        self.db.log_swipe_out(id)
 
     def user_is_swiped_in(self,id): 
-        return id in self._db.get_active_users()
+        return id in self.db.get_active_users()
 
     def start_swipe_logging_job(self):
         t = threading.Thread(target=self._do_swipe_logging_in_job)

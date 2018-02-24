@@ -26,7 +26,6 @@ class User:
 node = CCRAttendanceNode("a","b","c")
 
 #node.start_swipe_logging_job()
-currentUser = User()
 
 KV = '''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
@@ -91,7 +90,6 @@ ScreenManagement:
                 on_press: root.update_meeting("Make-up")
                 on_release: app.root.current = "teams"
 
-
 <TeamScreen>:
     name: "teams"
     BoxLayout:
@@ -124,6 +122,9 @@ ScreenManagement:
 
 '''
 
+currentUser = User()
+teams = node.db.get_teams
+
 class MeetingScreen(Screen):
     def __init__(self, **kwargs):
         super(MeetingScreen, self).__init__(**kwargs)
@@ -131,13 +132,11 @@ class MeetingScreen(Screen):
             self.update_in()
 
     def update_in(self):
-        print(currentUser.name)
         self.meeting_message = "Welcome, " + currentUser.name + "!"
         currentUser.greeting =  "Welcome, " + currentUser.name + "!"
 
     def update_meeting(self, meeting):
         currentUser.meeting = meeting
-
 
 class TeamScreen(Screen):
     def __init__(self, **kwargs):
@@ -158,7 +157,6 @@ class DoneScreen(Screen):
         self.done_message = currentUser.greeting
         currentUser = User()
 
-
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
@@ -174,8 +172,6 @@ class IdleScreen(Screen):
     def switch(self, dt):
         print(self)
         self.parent.current = "meeting"
-
-
 
 class ScreenManagement(ScreenManager):
     pass

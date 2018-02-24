@@ -1,9 +1,10 @@
 import sys
 import os
 sys.path.insert(0,os.getcwd()+"/src")
+import CCRAttendance
+import CCRResources
 from RpiRFID import RpiRFID
-import CCRAttendanceimport signal
-
+import signal
 
 try:
     import argparse

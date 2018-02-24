@@ -24,6 +24,6 @@ class RpiRFID:
                 return uid
 
     def stop(self):
-        do_read = False
+        self._do_read = False
                 
             

@@ -58,7 +58,7 @@ class CCRAttendanceDB:
             body=body).execute()
 
         if resp != []:
-            return {"success":True,"direction":"IN"}
+            return {"success":True,"user:":userID,"direction":"IN"}
 
     def log_timeout(self,row):
         values = [['TIMEOUT']]
@@ -68,7 +68,7 @@ class CCRAttendanceDB:
             valueInputOption="RAW", body=body).execute()
 
 
-    def _log_swipe_out(self,sessionRow):
+    def _log_swipe_out(self,sessionRow,userID):
         values = [[time.time()]]
         body = {'values': values}
         resp = self._service.spreadsheets().values().update(
@@ -76,7 +76,7 @@ class CCRAttendanceDB:
             valueInputOption="RAW", body=body).execute()
             
         if resp != []:
-            return {"success":True,"direction":"OUT"}
+            return {"success":True,"user:":userID,"direction":"IN"}
 
 
     def get_mettings_list(self):
@@ -92,7 +92,7 @@ class CCRAttendanceDB:
         swiped_in_users =  cached_active_users if cached_active_users != None else self.get_active_users()
         for log in swiped_in_users:
             if log[0] == userID:
-                return self._log_swipe_out(log[2])
+                return self._log_swipe_out(log[2],userID)
         return self._log_swipe_in(userID)
 
     def get_user_id_map(self):

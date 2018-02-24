@@ -3,6 +3,6 @@
     "swipes_log_range":"Attendance Log!A2:E",
     "timeout_log_range":"Attendance Log!K2:L",
     "meetings_list_range":"Meetings!A2:A",
-    "users_list_range":"Users!:A2:B",
+    "users_list_range":"Users!A2:B",
     "sheet_id":"1Zd_wqWmi-ctm_Mrw7ZDz7Nr4abn4IHmVKxMlC9xisek"
 }

@@ -1,4 +1,4 @@
-.PHONY: all test clean node register
+.PHONY: all test clean node register gui
 
 all : test
 
@@ -13,3 +13,6 @@ register:
 
 node:
 	python run_node.py res/client_secret.json CCR_Attendance_Node res/db_config.json
+
+gui:
+	python src/GUI.py

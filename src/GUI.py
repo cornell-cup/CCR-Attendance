@@ -198,8 +198,6 @@ class ScreenManagement(ScreenManager):
     pass
 
 presentation = Builder.load_string(KV)
-
-
 class MainApp(App):
     def build(self):
         return presentation

@@ -17,9 +17,8 @@ try:
 except ImportError:
     flags = None
 
-CCRResources.populate("res")
-interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
-signal.signal(signal.SIGINT, end_read)
+#CCRResources.populate("res")
+#interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
 
 read = True
 
@@ -29,16 +28,19 @@ def end_read(signal,frame):
     read = False
     GPIO.cleanup()
 
+signal.signal(signal.SIGINT,end_read)
+
 def main():
     while read:
         reader = RpiRFID()
         print("Looking for card...")
-        uid = reader.read()
+        uid = reader.read_value()
         print("Found card: %i",uid)
         name = raw_input("Name: ")
-        interface.register_user(name,uid)
+        #interface.register_user(name,uid)
 
 
+main()
 
 
 

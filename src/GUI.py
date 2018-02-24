@@ -11,10 +11,12 @@ from kivy.uix.image import Image
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
-from CCRAttendanceNode import CCRAttendanceNode 
+from CCRAttendanceNode import CCRAttendanceNode
 import time
 import CCRResources
 from CCRResources import res
+from kivy.config import Config
+Config.set('graphics', 'fullscreen', 'auto')
 
 CCRResources.populate("res")
 
@@ -168,6 +170,7 @@ class TeamScreen(Screen):
         super(TeamScreen, self).__init__(**kwargs)
         self.team_message = currentUser.greeting
         for project in projects:
+            print(project)
             button = Button(text=project)
             button.bind(on_press=(lambda x: self.update_team(project)))
             self.ids.teams_grid.add_widget(button)
@@ -182,12 +185,12 @@ class IdleScreen(Screen):
         super(IdleScreen, self).__init__(**kwargs)
         counter = 0
         while currentUser.name == "":
-            # node.has_swipe_available():
-            swipe = {"user": "Laura", "direction": "IN", "row": 1}  # node.pop_swipe()
-            currentUser.name = swipe["user"]
-            currentUser.direction = swipe["direction"]
-            currentUser.row = swipe["row"]
-            counter += 1
+            if node.has_swipe_available():
+                swipe = node.pop_swipe()
+                currentUser.name = swipe["user"]
+                currentUser.direction = swipe["direction"]
+                currentUser.row = swipe["row"]
+                counter += 1
         Clock.schedule_once(self.switch, 1 / 60)
 
     def switch(self, dt):

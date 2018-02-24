@@ -5,7 +5,7 @@ rfid_read_sleep = 0.001 # seconds
 
 class RpiRFID:
     def __init__(self):
-        self._reader = None
+        self._reader = MFRC522.MFRC522()
         self._do_read = True
 
     def init(self):
@@ -18,9 +18,11 @@ class RpiRFID:
 
             if status == MFRC522.MFRC522.MI_OK:
                 (status,uid) = self._reader.MFRC522_Anticoll()
-
+	    uid_int = 0
             if status == MFRC522.MFRC522.MI_OK:    
-                return uid
+               for byte in uid:
+			uid_int = uid_int << 8 | byte
+	       return uid_int
 
     def stop(self):
         self._do_read = False

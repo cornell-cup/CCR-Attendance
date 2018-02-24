@@ -4,7 +4,9 @@ from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.lang import Builder
+from kivy.uix.image import Image
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -30,35 +32,37 @@ ScreenManagement:
     transition: FadeTransition()
     IdleScreen:
         id: idle
-    MainScreen:
-        id: main
-    AnotherScreen:
-        id: other
     MeetingScreen:
         id: meeting
     TeamScreen:
         id: teams
-
+    DoneScreen:
+        id: done
+    
 <IdleScreen>:
     name: "idle"
     Label: 
         text: "CORNELL CUP ATTENDANCE"
         font_size: 50
-
-<MainScreen>:
-    name: "main"
-    Button:
-        on_release: app.root.current = "other"
-        text: 'Another Screen'
-        font_size: 50
-            
-<AnotherScreen>:
-    name: "other"
-    Button:
-        on_release: app.root.current = "main"
-        text: 'back to the home screen'
-        font_size: 50
-
+    
+<DoneScreen>:
+    name: "done"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: root.done_message
+            font_size: 30
+        AnchorLayout:
+            anchor_x: 'center'
+            anchor_y: 'center'
+            Image:
+                source: '../res/checkmark.png'
+                size_hint: None, None
+                size: 50,50
+            Label:
+                text: "Thanks! You've been signed in."
+                font_sze: 20
+        
 <MeetingScreen>:
     name: "meeting"
     BoxLayout:
@@ -91,7 +95,7 @@ ScreenManagement:
     BoxLayout:
         orientation : "vertical"
         Label:
-            text: root.team_messsage
+            text: root.team_message
             font_size: 30
         Label:
             text: "Which subteam are you on?"
@@ -102,19 +106,19 @@ ScreenManagement:
             Button: 
                 text: "Wall"
                 on_press: root.update_team("Wall")
-                on_release: app.root.current = "idle"
+                on_release: app.root.current = "done"
             Button: 
                 text: "Pogo"
                 on_press: root.update_team("Pogo")
-                on_release: app.root.current = "idle"
+                on_release: app.root.current = "done"
             Button: 
                 text: "Minibot"
                 on_press: root.update_team("Minibot")
-                on_release: app.root.current = "idle"
+                on_release: app.root.current = "done"
             Button: 
                 text: "Experimental"
                 on_press: root.update_team("Experimental")
-                on_release: app.root.current = "idle"
+                on_release: app.root.current = "done"
 
 '''
 
@@ -132,26 +136,24 @@ class MeetingScreen(Screen):
     def update_meeting(self, meeting):
         currentUser.meeting = meeting
 
+
 class TeamScreen(Screen):
     def __init__(self, **kwargs):
         super(TeamScreen, self).__init__(**kwargs)
-        self.team_messsage = currentUser.greeting
+        self.team_message = currentUser.greeting
 
     def update_team(self, team):
         currentUser.team = team
 
 
-class MainScreen(Screen):
-    pass
+class DoneScreen(Screen):
+    def __init__(self, **kwargs):
+        super(DoneScreen, self).__init__(**kwargs)
+        self.done_message = currentUser.greeting
+        currentUser = User()
 
-class AnotherScreen(Screen):
-    pass
-
-#CHECK IF PERSON IS SWIPED IN OR NOT 
-#SIGN THEM OUT OR ASK THEM QUESTIONS
 
 class IdleScreen(Screen):
-
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
         counter = 0

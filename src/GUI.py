@@ -28,6 +28,7 @@ currentUser = User()
 
 KV = '''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Clock kivy.clock.Clock
 ScreenManagement:
     transition: FadeTransition()
     IdleScreen:
@@ -38,11 +39,19 @@ ScreenManagement:
         id: teams
     DoneScreen:
         id: done
+    GoodbyeScreen:
+        id: goodbye
     
 <IdleScreen>:
     name: "idle"
     Label: 
         text: "CORNELL CUP ATTENDANCE"
+        font_size: 50
+    
+<GoodbyeScreen>:
+    name: "goodbye"
+    Label: 
+        text: root.goodbye_message
         font_size: 50
     
 <DoneScreen>:
@@ -52,16 +61,13 @@ ScreenManagement:
         Label:
             text: root.done_message
             font_size: 30
-        AnchorLayout:
-            anchor_x: 'center'
-            anchor_y: 'center'
-            Image:
-                source: '../res/checkmark.png'
-                size_hint: None, None
-                size: 50,50
-            Label:
-                text: "Thanks! You've been signed in."
-                font_sze: 20
+        Image:
+            source: '../res/checkmark.png'
+            size_hint: 0.3, 0.4
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Label:
+            text: "Thanks! You've been signed in."
+            font_sze: 20
         
 <MeetingScreen>:
     name: "meeting"
@@ -122,6 +128,35 @@ ScreenManagement:
 
 '''
 
+class DoneScreen(Screen):
+    def __init__(self, **kwargs):
+        super(DoneScreen, self).__init__(**kwargs)
+        global currentUser
+        self.done_message = currentUser.greeting
+        currentUser = User()
+
+    def on_enter(self):
+        Clock.schedule_once(self.switch, 3)
+
+    def switch(self, dt):
+        print(self)
+        self.manager.current = "idle"
+
+
+class GoodbyeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(GoodbyeScreen, self).__init__(**kwargs)
+        global currentUser
+        self.goodbye_message =  "Goodbye, " + currentUser.name + "!"
+        currentUser = User()
+
+    def on_enter(self):
+        Clock.schedule_once(self.switch, 3)
+
+    def switch(self, dt):
+        print(self)
+        self.manager.current = "idle"
+
 class MeetingScreen(Screen):
     def __init__(self, **kwargs):
         super(MeetingScreen, self).__init__(**kwargs)
@@ -145,12 +180,6 @@ class TeamScreen(Screen):
     def update_team(self, team):
         currentUser.team = team
 
-
-class DoneScreen(Screen):
-    def __init__(self, **kwargs):
-        super(DoneScreen, self).__init__(**kwargs)
-        self.done_message = currentUser.greeting
-        currentUser = User()
 
 
 class IdleScreen(Screen):

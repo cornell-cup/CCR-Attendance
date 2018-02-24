@@ -44,7 +44,7 @@ class CCRAttendanceNode:
     def log_swipe_out(self,id):
         self._db.log_swipe_out(id)
 
-    def user_is_swiped_in(self,id):
+    def user_is_swiped_in(self,id): 
         return id in self._db.get_active_users()
 
     def start_swipe_logging_job(self):

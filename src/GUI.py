@@ -16,10 +16,9 @@ import time
 import CCRResources
 from CCRResources import res
 from kivy.config import Config
-Config.set('graphics', 'fullscreen', 'auto')
+#Config.set('graphics', 'fullscreen', 'auto')
 
 CCRResources.populate("res")
-
 
 class User:
     def __init__(self):
@@ -32,10 +31,6 @@ class User:
         self.team = ""
 
 
-node = CCRAttendanceNode(
-    res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-
-#node.start_swipe_logging_job()
 
 KV = '''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
@@ -120,6 +115,8 @@ ScreenManagement:
 '''
 
 currentUser = User()
+node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
+node.start_swipe_logging_job()
 projects = node.db.get_projects_list()
 meetings = node.db.get_meetings_list()
 
@@ -135,7 +132,6 @@ class DoneScreen(Screen):
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
-        print(self)
         self.manager.current = "idle"
 
 
@@ -150,7 +146,6 @@ class GoodbyeScreen(Screen):
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
-        print(self)
         self.manager.current = "idle"
 
 
@@ -174,16 +169,16 @@ class TeamScreen(Screen):
         self.team_message = currentUser.greeting
         Clock.schedule_once(self._finish_init)
 
-    def move_to_done(self,*args):
+    def move_to_done(self, *args):
         self.manager.current = "done"
-        node.log_swipe_in(currentUser.id, currentUser.meeting,currentUser.team)
+        node.log_swipe_in(currentUser.id, currentUser.meeting,
+                          currentUser.team)
 
     def _finish_init(self, dt):
         grid_layout = GridLayout(cols=2)
         for project in projects:
-            print(project)
             button = Button(text=project)
-            button.bind(on_press=lambda x : self.update_team(project))
+            button.bind(on_press=lambda x: self.update_team(project))
             button.bind(on_release=self.move_to_done)
             grid_layout.add_widget(button)
 
@@ -196,30 +191,18 @@ class TeamScreen(Screen):
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
-        counter = 0
-        while currentUser.name == "":
-            '''
-            if node.has_swipe_available():
-                swipe = node.pop_swipe()
-                currentUser.name = swipe["user"]
-                currentUser.direction = swipe["direction"]
-                currentUser.row = swipe["row"]
-                counter += 1
-            '''
-            # node.has_swipe_available():
-            swipe = {
-                "user": "Laura",
-                "direction": "IN",
-                "row": 1
-            }  # node.pop_swipe()
-            currentUser.name = swipe["user"]
-            currentUser.direction = swipe["direction"]
-            currentUser.row = swipe["row"]
-            counter += 1
-        Clock.schedule_once(self.switch, 1 / 60)
+
+        #wait for a swipe to come in
+        while not node.has_swipe_available():
+            time.sleep(.025)
+
+        swipe = node.pop_swipe()
+        currentUser.name = swipe["user"]
+        currentUser.direction = swipe["direction"]
+        currentUser.row = swipe["row"]
+        Clock.schedule_once(self.switch)
 
     def switch(self, dt):
-        print(self)
         self.parent.current = "meeting"
 
 

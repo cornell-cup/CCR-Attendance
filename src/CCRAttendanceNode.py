@@ -48,7 +48,7 @@ class CCRAttendanceNode:
         return id in self.db.get_active_users()
 
     def start_swipe_logging_job(self):
-        t = threading.Thread(target=self._do_swipe_logging_in_job)
+        t = threading.Thread(target=self._do_swipe_listening_in_job)
         t.start()
 
     def stop_swipe_logging_job(self):

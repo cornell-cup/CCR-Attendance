@@ -18,12 +18,12 @@ class RpiRFID:
             (status, _) = self._reader.MFRC522_Request(MFRC522.PICC_REQIDL)
 
             if status == MFRC522.MI_OK:
-                (status, uid) = self._reader.MFRC522_Anticoll()
+                (status,uid) = self._reader.MFRC522_Anticoll()
             uid_int = 0
-            if status == MFRC522.MFRC522.MI_OK:
+            if status == MFRC522.MFRC522.MI_OK:    
                 for byte in uid:
                     uid_int = uid_int << 8 | byte
-                return uid_int
+            return uid_int
 
     def stop(self):
         self._do_read = False

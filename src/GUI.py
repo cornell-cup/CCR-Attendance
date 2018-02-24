@@ -60,7 +60,7 @@ ScreenManagement:
                 rgba: 1, 1, 1, 1
     Label: 
         text: "CORNELL CUP ATTENDANCE"
-        color: 0,0,0,0
+        color: 0,0,0,1
         font_size: 50
     
 <GoodbyeScreen>:
@@ -88,7 +88,7 @@ ScreenManagement:
         orientation: "vertical"
         Label:
             text: root.done_message
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_size: 60
         Image:
             source: '../res/checkmark.png'
@@ -96,7 +96,7 @@ ScreenManagement:
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         Label:
             text: "Thanks! You've been signed in."
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_sze: 30
         
 <MeetingScreen>:
@@ -111,12 +111,12 @@ ScreenManagement:
         orientation: "vertical"
         Label:
             text: root.meeting_message
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_size: 60
             
         Label:
             text: "What type of meeting are you signing in to?"
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_size: 30
         BoxLayout:
             id: b1
@@ -150,11 +150,11 @@ ScreenManagement:
         orientation : "vertical"
         Label:
             text: root.team_message
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_size: 60
         Label:
             text: "Which subteam are you on?"
-            color: 0,0,0,0
+            color: 0,0,0,1
             font_size: 30
 '''
 

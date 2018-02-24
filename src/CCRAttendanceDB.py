@@ -35,7 +35,14 @@ class CCRAttendanceDB:
 
         result = self._service.spreadsheets().values().get(
             spreadsheetId=self._config["sheet_id"], range=self._config["active_table_range"]).execute()
-        return result.get("values",[])
+
+        active_data =  result.get("values",[])
+
+        active_users = []
+        for user_data in active_data:
+            active_users.append({"user":user_data[0],"time_in":user_data[1],"row":user_data[2]})
+
+        return active_users
         
     def reload_config_file(self):
         '''
@@ -49,51 +56,58 @@ class CCRAttendanceDB:
         except jsonschema.ValidationError:
             print("Invalid config file: " + self._config)
 
-    def _log_swipe_in(self,userID):
-        values = [[userID,time.time()]]
+    def log_swipe_in(self,userID,project,team):
+        values = [[userID,project,team,time.time()]]
         body = {'values': values}
 
         resp = self._service.spreadsheets().values().append(
-            spreadsheetId=self._config["sheet_id"], range=self._config["swipes_log_range"],valueInputOption="RAW",
+            spreadsheetId = self._config["sheet_id"], range=self._config["swipes_log_range"],valueInputOption="RAW",
             body=body).execute()
 
         if resp != []:
             return {"success":True,"user:":userID,"direction":"IN"}
 
+    def validate_uid(self,uid):
+        pass
+
     def log_timeout(self,row):
         values = [['TIMEOUT']]
         body = {'values': values}
         self._service.spreadsheets().values().update(
-            spreadsheetId=self._config["sheet_id"], range="D"+str(row),
+            spreadsheetId=self._config["sheet_id"], range="F"+str(row),
             valueInputOption="RAW", body=body).execute()
 
 
-    def _log_swipe_out(self,sessionRow,userID):
+    def log_swipe_out(self,userID,sessionRow=None,cached_active_users=None):
+        if sessionRow == None:
+            swiped_in_users =  cached_active_users if cached_active_users != None else self.get_active_users()
+            for swiped_data in swiped_in_users:
+                if swiped_data["user"] == userID:
+                    sessionRow = swiped_data["row"]
+
         values = [[time.time()]]
         body = {'values': values}
         resp = self._service.spreadsheets().values().update(
-            spreadsheetId=self._config["sheet_id"], range="C"+str(sessionRow),
+            spreadsheetId=self._config["sheet_id"], range="E"+str(sessionRow),
             valueInputOption="RAW", body=body).execute()
             
         if resp != []:
-            return {"success":True,"user:":userID,"direction":"IN"}
+            return {"success":True,"user:":userID,"direction":"OUT"}
 
 
-    def get_mettings_list(self):
+    def get_projects_list(self):
         result = self._service.spreadsheets().values().get(
-            spreadsheetId=self._config["sheet_id"], range=self._config["meetings_list_range"]).execute()
-        return result.get("values",[])
+            spreadsheetId=self._config["sheet_id"], range=self._config["project_list_range"]).execute()
 
-    def log_swipe(self,userID,cached_active_users=None):
-        '''
-            Logs a user swipe. Will be logged as a swipe-in if the user is
-            current in the list of active users and a swipe out otherwise.
-        '''
-        swiped_in_users =  cached_active_users if cached_active_users != None else self.get_active_users()
-        for log in swiped_in_users:
-            if log[0] == userID:
-                return self._log_swipe_out(log[2],userID)
-        return self._log_swipe_in(userID)
+        project_list = result.get("values",[])
+
+        projects = []
+        for project in project_list:
+            project_name = project[0]
+            project_teams = project[1].split(",")
+            projects.append({"name":project_name,"teams":project_teams})
+
+        return projects
 
     def get_user_id_map(self):
         result = self._service.spreadsheets().values().get(

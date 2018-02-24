@@ -12,4 +12,4 @@ register:
 	python register_card.py res/client_secret.json CCR_Attendance_Node res/db_config.json
 
 node:
-	python run_node.py res/client_secret.json CCR_Attendance_Node res/config.json
+	python run_node.py res/client_secret.json CCR_Attendance_Node res/db_config.json

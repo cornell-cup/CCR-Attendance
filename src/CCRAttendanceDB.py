@@ -3,6 +3,7 @@ import jsonschema
 from jsonschema import validate
 from CCRResources import res
 import time
+import itertools
 
 class CCRAttendanceDB:
     def __init__(self,service, configFile):
@@ -94,21 +95,16 @@ class CCRAttendanceDB:
         if resp != []:
             return {"success":True,"user:":userID,"direction":"OUT"}
 
-
     def get_projects_list(self):
         result = self._service.spreadsheets().values().get(
-            spreadsheetId=self._config["sheet_id"], range=self._config["project_list_range"]).execute()
+            spreadsheetId=self._config["sheet_id"], range=self._config["projects_list_range"]).execute()
+        return list(itertools.chain(*result.get("values",[])))
 
-        project_list = result.get("values",[])
-
-        projects = []
-        for project in project_list:
-            project_name = project[0]
-            project_teams = project[1].split(",")
-            projects.append({"name":project_name,"teams":project_teams})
-
-        return projects
-
+    def get_meetings_list(self):
+        result = self._service.spreadsheets().values().get(
+            spreadsheetId=self._config["sheet_id"], range=self._config["meetings_list_range"]).execute()
+        return list(itertools.chain(*result.get("values",[])))
+        
     def get_user_id_map(self):
         result = self._service.spreadsheets().values().get(
             spreadsheetId=self._config["sheet_id"], range=self._config["users_list_range"]).execute()

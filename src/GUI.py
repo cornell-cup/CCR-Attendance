@@ -11,12 +11,13 @@ from kivy.uix.image import Image
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
-from CCRAttendanceNode import CCRAttendanceNode 
+from CCRAttendanceNode import CCRAttendanceNode
 import time
 import CCRResources
 from CCRResources import res
 
 CCRResources.populate("res")
+
 
 class User:
     def __init__(self):
@@ -28,7 +29,9 @@ class User:
         self.meeting = ""
         self.team = ""
 
-node = CCRAttendanceNode(res("client_secret.json"),"CCR_Attendance_Node",res("db_config.json"))
+
+node = CCRAttendanceNode(
+    res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
 
 #node.start_swipe_logging_job()
 
@@ -104,6 +107,7 @@ ScreenManagement:
 <TeamScreen>:
     name: "teams"
     BoxLayout:
+        id: teams_box
         orientation : "vertical"
         Label:
             text: root.team_message
@@ -111,14 +115,12 @@ ScreenManagement:
         Label:
             text: "Which subteam are you on?"
             font_size: 30
-        GridLayout:
-            id: teams_grid
-            cols: 2
 '''
 
 currentUser = User()
 projects = node.db.get_projects_list()
 meetings = node.db.get_meetings_list()
+
 
 class DoneScreen(Screen):
     def __init__(self, **kwargs):
@@ -139,7 +141,7 @@ class GoodbyeScreen(Screen):
     def __init__(self, **kwargs):
         super(GoodbyeScreen, self).__init__(**kwargs)
         global currentUser
-        self.goodbye_message =  "Goodbye, " + currentUser.name + "!"
+        self.goodbye_message = "Goodbye, " + currentUser.name + "!"
         currentUser = User()
 
     def on_enter(self):
@@ -158,24 +160,35 @@ class MeetingScreen(Screen):
 
     def update_in(self):
         self.meeting_message = "Welcome, " + currentUser.name + "!"
-        currentUser.greeting =  "Welcome, " + currentUser.name + "!"
+        currentUser.greeting = "Welcome, " + currentUser.name + "!"
 
     def update_meeting(self, meeting):
         currentUser.meeting = meeting
+
 
 class TeamScreen(Screen):
     def __init__(self, **kwargs):
         super(TeamScreen, self).__init__(**kwargs)
         self.team_message = currentUser.greeting
+        Clock.schedule_once(self._finish_init)
+
+    def move_to_done(self,*args):
+        self.manager.current = "done"
+        node.log_swipe_in(currentUser.id, currentUser.meeting,currentUser.team)
+
+    def _finish_init(self, dt):
+        grid_layout = GridLayout(cols=2)
         for project in projects:
             button = Button(text=project)
-            button.bind(on_press=(lambda x: self.update_team(project)))
-            self.ids.teams_grid.add_widget(button)
+            button.bind(on_press=lambda x : self.update_team(project))
+            button.bind(on_release=self.move_to_done)
+            grid_layout.add_widget(button)
+
+        self.ids.teams_box.add_widget(grid_layout)
 
     def update_team(self, team):
         currentUser.team = team
-        #send user data to sheets
-        node.log_swipe_in(currentUser.id,currentUser.meeting,currentUser.team)
+
 
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
@@ -183,7 +196,11 @@ class IdleScreen(Screen):
         counter = 0
         while currentUser.name == "":
             # node.has_swipe_available():
-            swipe = {"user": "Laura", "direction": "IN", "row": 1}  # node.pop_swipe()
+            swipe = {
+                "user": "Laura",
+                "direction": "IN",
+                "row": 1
+            }  # node.pop_swipe()
             currentUser.name = swipe["user"]
             currentUser.direction = swipe["direction"]
             currentUser.row = swipe["row"]
@@ -194,12 +211,17 @@ class IdleScreen(Screen):
         print(self)
         self.parent.current = "meeting"
 
+
 class ScreenManagement(ScreenManager):
     pass
 
+
 presentation = Builder.load_string(KV)
+
+
 class MainApp(App):
     def build(self):
         return presentation
+
 
 MainApp().run()

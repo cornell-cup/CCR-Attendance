@@ -7,10 +7,12 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.button import Button
 from kivy.lang import Builder
-from kivy.uix.image import Image
+from kivy.uix.image import Image, AsyncImage
+from kivy.core.image import Image
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.graphics import BorderImage, Color, Rectangle, Line
 from CCRAttendanceNode import CCRAttendanceNode
 import time
 import CCRResources
@@ -50,73 +52,109 @@ ScreenManagement:
     
 <IdleScreen>:
     name: "idle"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            source: '../res/background.jpg'
     Label: 
         text: "CORNELL CUP ATTENDANCE"
-        font_size: 50
+        color: 0,0,0,0
+        font_size: 60
     
 <GoodbyeScreen>:
     name: "goodbye"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            source: '../res/background.jpg'
     Label: 
         text: root.goodbye_message
-        font_size: 50
+        color: 0,0,0,0
+        font_size: 60
     
 <DoneScreen>:
     name: "done"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            source: '../res/background.jpg'
     BoxLayout:
         orientation: "vertical"
         Label:
             text: root.done_message
-            font_size: 30
+            color: 0,0,0,0
+            font_size: 60
         Image:
             source: '../res/checkmark.png'
             size_hint: 0.3, 0.4
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         Label:
             text: "Thanks! You've been signed in."
+            color: 0,0,0,0
             font_sze: 20
         
 <MeetingScreen>:
     name: "meeting"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            source: '../res/background.jpg'
     BoxLayout:
         orientation: "vertical"
         Label:
             text: root.meeting_message
-            font_size: 30
+            color: 0,0,0,0
+            font_size: 40
         Label:
             text: "What type of meeting are you signing in to?"
+            color: 0,0,0,0
             font_size: 30
         BoxLayout:
             id: b1
             orientation: "horizontal"
             Button: 
                 text: "Work Meeting"
+                font_size: 30
                 on_press: root.update_meeting("Work")
                 on_release: app.root.current = "teams"
             Button: 
                 text: "Dave Meeting"
+                font_size: 30
                 on_press: root.update_meeting("Dave")
                 on_release: app.root.current = "teams"
             Button: 
                 text: "Make-Up Meeting"
+                font_size: 30
                 on_press: root.update_meeting("Make-up")
                 on_release: app.root.current = "teams"
 
 <TeamScreen>:
     name: "teams"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            source: '../res/background.jpg'
     BoxLayout:
         id: teams_box
         orientation : "vertical"
         Label:
             text: root.team_message
-            font_size: 30
+            color: 0,0,0,0
+            font_size: 60
         Label:
             text: "Which subteam are you on?"
+            color: 0,0,0,0
             font_size: 30
 '''
 
 currentUser = User()
 node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-node.start_swipe_logging_job()
+#node.start_swipe_logging_job()
 projects = node.db.get_projects_list()
 meetings = node.db.get_meetings_list()
 
@@ -177,8 +215,8 @@ class TeamScreen(Screen):
     def _finish_init(self, dt):
         grid_layout = GridLayout(cols=2)
         for project in projects:
-            button = Button(text=project)
-            button.bind(on_press=lambda x: self.update_team(project))
+            button = Button(text=project, font_size = 2520)
+            button.bind(on_press=lambda x : self.update_team(project))
             button.bind(on_release=self.move_to_done)
             grid_layout.add_widget(button)
 
@@ -193,10 +231,11 @@ class IdleScreen(Screen):
         super(IdleScreen, self).__init__(**kwargs)
 
         #wait for a swipe to come in
-        while not node.has_swipe_available():
-            time.sleep(.025)
+        #if not node.has_swipe_available():
+         #   time.sleep(.025)
 
-        swipe = node.pop_swipe()
+        #swipe = node.pop_swipe()
+        swipe = {"user": "Laura", "direction": "IN", "row": 1}
         currentUser.name = swipe["user"]
         currentUser.direction = swipe["direction"]
         currentUser.row = swipe["row"]

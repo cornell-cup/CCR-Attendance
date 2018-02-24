@@ -38,8 +38,8 @@ class CCRAttendanceNode:
                 if self.db.validate_uid(id):
                     self.queue_swipe(id)
 
-    def log_swipe_in(self,id,project,team):
-        self.db.log_swipe_in(id,project,team)
+    def log_swipe_in(self,id,meeting,team):
+        self.db.log_swipe_in(id,meeting,team)
 
     def log_swipe_out(self,id):
         self.db.log_swipe_out(id)

@@ -57,8 +57,8 @@ class CCRAttendanceDB:
         except jsonschema.ValidationError:
             print("Invalid config file: " + self._config)
 
-    def log_swipe_in(self,userID,project,team):
-        values = [[userID,project,team,time.time()]]
+    def log_swipe_in(self,userID,meeting,team):
+        values = [[userID,meeting,team,time.time()]]
         body = {'values': values}
 
         resp = self._service.spreadsheets().values().append(

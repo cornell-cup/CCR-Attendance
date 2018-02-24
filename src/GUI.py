@@ -5,6 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.button import Button
 from kivy.lang import Builder
 from kivy.uix.image import Image
 from kivy.properties import StringProperty, ObjectProperty
@@ -12,6 +13,10 @@ from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
 from CCRAttendanceNode import CCRAttendanceNode 
 import time
+import CCRResources
+from CCRResources import res
+
+CCRResources.populate("res")
 
 class User:
     def __init__(self):
@@ -23,12 +28,13 @@ class User:
         self.meeting = ""
         self.team = ""
 
-node = CCRAttendanceNode("a","b","c")
+node = CCRAttendanceNode(res("client_secret.json"),"CCR_Attendance_Node",res("db_config.json"))
 
 #node.start_swipe_logging_job()
 
 KV = '''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Clock kivy.clock.Clock
 ScreenManagement:
     transition: FadeTransition()
     IdleScreen:
@@ -39,11 +45,19 @@ ScreenManagement:
         id: teams
     DoneScreen:
         id: done
+    GoodbyeScreen:
+        id: goodbye
     
 <IdleScreen>:
     name: "idle"
     Label: 
         text: "CORNELL CUP ATTENDANCE"
+        font_size: 50
+    
+<GoodbyeScreen>:
+    name: "goodbye"
+    Label: 
+        text: root.goodbye_message
         font_size: 50
     
 <DoneScreen>:
@@ -53,16 +67,13 @@ ScreenManagement:
         Label:
             text: root.done_message
             font_size: 30
-        AnchorLayout:
-            anchor_x: 'center'
-            anchor_y: 'center'
-            Image:
-                source: '../res/checkmark.png'
-                size_hint: None, None
-                size: 50,50
-            Label:
-                text: "Thanks! You've been signed in."
-                font_sze: 20
+        Image:
+            source: '../res/checkmark.png'
+            size_hint: 0.3, 0.4
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Label:
+            text: "Thanks! You've been signed in."
+            font_sze: 20
         
 <MeetingScreen>:
     name: "meeting"
@@ -101,29 +112,43 @@ ScreenManagement:
             text: "Which subteam are you on?"
             font_size: 30
         GridLayout:
-            id: g1
+            id: teams_grid
             cols: 2
-            Button: 
-                text: "Wall"
-                on_press: root.update_team("Wall")
-                on_release: app.root.current = "done"
-            Button: 
-                text: "Pogo"
-                on_press: root.update_team("Pogo")
-                on_release: app.root.current = "done"
-            Button: 
-                text: "Minibot"
-                on_press: root.update_team("Minibot")
-                on_release: app.root.current = "done"
-            Button: 
-                text: "Experimental"
-                on_press: root.update_team("Experimental")
-                on_release: app.root.current = "done"
-
 '''
 
 currentUser = User()
-teams = node.db.get_teams
+projects = node.db.get_projects_list()
+meetings = node.db.get_meetings_list()
+
+class DoneScreen(Screen):
+    def __init__(self, **kwargs):
+        super(DoneScreen, self).__init__(**kwargs)
+        global currentUser
+        self.done_message = currentUser.greeting
+        currentUser = User()
+
+    def on_enter(self):
+        Clock.schedule_once(self.switch, 3)
+
+    def switch(self, dt):
+        print(self)
+        self.manager.current = "idle"
+
+
+class GoodbyeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(GoodbyeScreen, self).__init__(**kwargs)
+        global currentUser
+        self.goodbye_message =  "Goodbye, " + currentUser.name + "!"
+        currentUser = User()
+
+    def on_enter(self):
+        Clock.schedule_once(self.switch, 3)
+
+    def switch(self, dt):
+        print(self)
+        self.manager.current = "idle"
+
 
 class MeetingScreen(Screen):
     def __init__(self, **kwargs):
@@ -142,20 +167,15 @@ class TeamScreen(Screen):
     def __init__(self, **kwargs):
         super(TeamScreen, self).__init__(**kwargs)
         self.team_message = currentUser.greeting
+        for project in projects:
+            button = Button(text=project)
+            button.bind(on_press=(lambda x: self.update_team(project)))
+            self.ids.teams_grid.add_widget(button)
 
     def update_team(self, team):
         currentUser.team = team
-
         #send user data to sheets
-        node.log_swipe_in(currentUser.id,currentUser.project,currentUser.team)
-        
-
-
-class DoneScreen(Screen):
-    def __init__(self, **kwargs):
-        super(DoneScreen, self).__init__(**kwargs)
-        self.done_message = currentUser.greeting
-        currentUser = User()
+        node.log_swipe_in(currentUser.id,currentUser.meeting,currentUser.team)
 
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
@@ -169,6 +189,7 @@ class IdleScreen(Screen):
             currentUser.row = swipe["row"]
             counter += 1
         Clock.schedule_once(self.switch, 1 / 60)
+
     def switch(self, dt):
         print(self)
         self.parent.current = "meeting"

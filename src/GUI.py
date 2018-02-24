@@ -56,11 +56,12 @@ ScreenManagement:
         Rectangle:
             pos : self.pos
             size : self.size
-            source: '../res/background.jpg'
+            Color:
+                rgba: 1, 1, 1, 1
     Label: 
         text: "CORNELL CUP ATTENDANCE"
         color: 0,0,0,0
-        font_size: 60
+        font_size: 50
     
 <GoodbyeScreen>:
     name: "goodbye"
@@ -68,7 +69,8 @@ ScreenManagement:
         Rectangle:
             pos : self.pos
             size : self.size
-            source: '../res/background.jpg'
+            Color:
+                rgba: 1, 1, 1, 1
     Label: 
         text: root.goodbye_message
         color: 0,0,0,0
@@ -80,7 +82,8 @@ ScreenManagement:
         Rectangle:
             pos : self.pos
             size : self.size
-            source: '../res/background.jpg'
+            Color:
+                rgba: 1, 1, 1, 1
     BoxLayout:
         orientation: "vertical"
         Label:
@@ -94,7 +97,7 @@ ScreenManagement:
         Label:
             text: "Thanks! You've been signed in."
             color: 0,0,0,0
-            font_sze: 20
+            font_sze: 30
         
 <MeetingScreen>:
     name: "meeting"
@@ -102,13 +105,15 @@ ScreenManagement:
         Rectangle:
             pos : self.pos
             size : self.size
-            source: '../res/background.jpg'
+            Color:
+                rgba: 1, 1, 1, 1
     BoxLayout:
         orientation: "vertical"
         Label:
             text: root.meeting_message
             color: 0,0,0,0
-            font_size: 40
+            font_size: 60
+            
         Label:
             text: "What type of meeting are you signing in to?"
             color: 0,0,0,0
@@ -138,7 +143,8 @@ ScreenManagement:
         Rectangle:
             pos : self.pos
             size : self.size
-            source: '../res/background.jpg'
+            Color:
+                rgba: 1, 1, 1, 1
     BoxLayout:
         id: teams_box
         orientation : "vertical"
@@ -215,7 +221,7 @@ class TeamScreen(Screen):
     def _finish_init(self, dt):
         grid_layout = GridLayout(cols=2)
         for project in projects:
-            button = Button(text=project, font_size = 2520)
+            button = Button(text=project, font_size = 25)
             button.bind(on_press=lambda x : self.update_team(project))
             button.bind(on_release=self.move_to_done)
             grid_layout.add_widget(button)

@@ -18,6 +18,7 @@ KV = '''
     content: b1
     BoxLayout:
         id: b1
+        orientation: "vertical"
         Label: 
             id: message
             text: ""

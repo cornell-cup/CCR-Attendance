@@ -43,6 +43,12 @@ class CCRAttendanceNode:
         while self._running:
             return self.get_user_swipe()
 
+    def async_get_user_swipe(self,callback):
+        read_thread = threading.Thread(target=lambda :
+            callback(self.get_user_swipe()))
+
+        read_thread.start()
+
     def log_swipe_in(self,id,meeting,team):
         self.db.log_swipe_in(id,meeting,team)
 

@@ -73,7 +73,7 @@ ScreenManagement:
                 rgba: 1, 1, 1, 1
     Label: 
         text: root.goodbye_message
-        color: 0,0,0,0
+        color: 0,0,0,1
         font_size: 60
     
 <DoneScreen>:
@@ -194,6 +194,7 @@ class GoodbyeScreen(Screen):
 
 
 class MeetingScreen(Screen):
+    meeting_message = StringProperty()
     def __init__(self, **kwargs):
         super(MeetingScreen, self).__init__(**kwargs)
         if currentUser.direction == "IN":
@@ -231,25 +232,15 @@ class TeamScreen(Screen):
     def update_team(self, team):
         currentUser.team = team
 
-
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
+        Clock.schedule_once(self.user_swiped)
+        #Clock.schedule_once(node.async_get_user_swipe(self.user_swiped))
 
-        #wait for a swipe to come in
-        #if not node.has_swipe_available():
-         #   time.sleep(.025)
-
-        #swipe = node.pop_swipe()
-        swipe = {"user": "Laura", "direction": "IN", "row": 1}
-        currentUser.name = swipe["user"]
-        currentUser.direction = swipe["direction"]
-        currentUser.row = swipe["row"]
-        Clock.schedule_once(self.switch)
-
-    def switch(self, dt):
-        self.parent.current = "meeting"
-
+    def user_swiped(self,dt):
+        currentUser.id = id
+        self.manager.current = "meeting"
 
 class ScreenManagement(ScreenManager):
     pass

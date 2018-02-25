@@ -108,6 +108,7 @@ ScreenManagement:
             Color:
                 rgba: 1, 1, 1, 1
     BoxLayout:
+        id: box_layout_top
         orientation: "vertical"
         Label:
             text: root.meeting_message
@@ -118,24 +119,6 @@ ScreenManagement:
             text: "What type of meeting are you signing in to?"
             color: 0,0,0,1
             font_size: 30
-        BoxLayout:
-            id: b1
-            orientation: "horizontal"
-            Button: 
-                text: "Work Meeting"
-                font_size: 30
-                on_press: root.update_meeting("Work")
-                on_release: app.root.current = "teams"
-            Button: 
-                text: "Dave Meeting"
-                font_size: 30
-                on_press: root.update_meeting("Dave")
-                on_release: app.root.current = "teams"
-            Button: 
-                text: "Make-Up Meeting"
-                font_size: 30
-                on_press: root.update_meeting("Make-up")
-                on_release: app.root.current = "teams"
 
 <TeamScreen>:
     name: "teams"
@@ -194,17 +177,26 @@ class GoodbyeScreen(Screen):
 
 
 class MeetingScreen(Screen):
+    meeting_message = StringProperty()
     def __init__(self, **kwargs):
         super(MeetingScreen, self).__init__(**kwargs)
-        if currentUser.direction == "IN":
-            self.update_in()
+        Clock.schedule_once(self._finish_init)
 
-    def update_in(self):
+    def _finish_init(self,dt):
+        for meeting in meetings:
+            button = Button(text=meeting, font_size = 25)
+            button.bind(on_press=lambda x : self.update_meeting(meeting))
+            button.bind(on_release=self.move_to_team)
+            self.ids.box_layout_top.add_widget(button)
+        
+
         self.meeting_message = "Welcome, " + currentUser.name + "!"
-        currentUser.greeting = "Welcome, " + currentUser.name + "!"
 
     def update_meeting(self, meeting):
         currentUser.meeting = meeting
+
+    def move_to_team(self,dt):
+        self.manager.current = "teams"
 
 
 class TeamScreen(Screen):
@@ -235,12 +227,6 @@ class TeamScreen(Screen):
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
-
-        #wait for a swipe to come in
-        #if not node.has_swipe_available():
-         #   time.sleep(.025)
-
-        #swipe = node.pop_swipe()
         swipe = {"user": "Laura", "direction": "IN", "row": 1}
         currentUser.name = swipe["user"]
         currentUser.direction = swipe["direction"]

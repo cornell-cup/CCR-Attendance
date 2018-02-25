@@ -69,7 +69,7 @@ class CCRAttendanceDB:
             return {"success":True,"user:":userID,"direction":"IN"}
 
     def validate_uid(self,uid):
-        pass
+        return self.get_name_from_ID(uid) != None
 
     def log_timeout(self,row):
         values = [['TIMEOUT']]
@@ -115,6 +115,7 @@ class CCRAttendanceDB:
         for user_id_map in users:
             if user_id_map[0] == id:
                 return user_id_map[1]
+        return None
 
     def register_user(self,name,uid):
         values = [[name,uid]]

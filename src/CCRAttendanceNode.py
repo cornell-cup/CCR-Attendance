@@ -31,12 +31,17 @@ class CCRAttendanceNode:
         self._swipe_queue.append(swipe)
         self._queue_mutex.release()
 
+    def get_swipe(self):
+        return self._reader.read_value()
+
+    def get_user_swipe(self):
+        id = self.get_swipe()
+        if self.db.validate_uid(id):
+            return id
+
     def _do_swipe_listening_in_job(self):
         while self._running:
-            id = self._reader.read_value()                    
-            if id is not None:
-                if self.db.validate_uid(id):
-                    self.queue_swipe(id)
+            return self.get_user_swipe()
 
     def log_swipe_in(self,id,meeting,team):
         self.db.log_swipe_in(id,meeting,team)

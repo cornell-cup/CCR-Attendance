@@ -1,0 +1,6 @@
+cython
+hg+http://bitbucket.org/pygame/pygame
+kivy
+jsonschema
+google-api-python-client
+pytest

@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.insert(0, os.getcwd()[:len(os.getcwd()) - 4]+"src")
+sys.path.append("../src")
 import CCRAttendance
 import CCRResources
 from CCRResources import res

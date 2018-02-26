@@ -1,0 +1,6 @@
+jsonschema>=2.6.0
+google-api-python-client>=1.6.5
+pytest>=3.4.0
+httplib2>=0.10.3
+Cython>=0.27.3
+pygame>=1.9.1release

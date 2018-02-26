@@ -143,10 +143,8 @@ ScreenManagement:
 
 currentUser = User()
 node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-#node.start_swipe_logging_job()
 projects = node.db.get_projects_list()
 meetings = node.db.get_meetings_list()
-
 
 class DoneScreen(Screen):
     def __init__(self, **kwargs):
@@ -226,9 +224,7 @@ class TeamScreen(Screen):
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
-
-        #listen for incomming swipe. Do async so other things can be drawn.
-        Clock.schedule_once(node.async_get_user_swipe(self.user_swiped))
+        Clock.schedule_once(node.async_get_user_name_swipe(self.user_swiped))
 
     def user_swiped(self,dt):
         currentUser.id = id
@@ -237,13 +233,16 @@ class IdleScreen(Screen):
 class ScreenManagement(ScreenManager):
     pass
 
-
 presentation = Builder.load_string(KV)
 
-
-class MainApp(App):
+class CCRAttendanceApp(App):
     def build(self):
         return presentation
 
+    def reload_meetings_and_projects(self):
+        global projects 
+        global meetings 
+        projects = node.db.get_projects_list()
+        meetings = node.db.get_meetings_list()
 
-MainApp().run()
+CCRAttendanceApp().run()

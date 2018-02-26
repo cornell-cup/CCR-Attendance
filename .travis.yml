@@ -1,7 +1,8 @@
 language: python
 python:
   - "3.6"
+sudo: enabled
 install:
-  - ./install.sh
+  - chmod +x install.sh && ./install.sh
 script:
-  - pytest
+  - cd test && pytest

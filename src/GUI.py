@@ -226,6 +226,8 @@ class TeamScreen(Screen):
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
+
+        #listen for incomming swipe. Do async so other things can be drawn.
         Clock.schedule_once(node.async_get_user_swipe(self.user_swiped))
 
     def user_swiped(self,dt):

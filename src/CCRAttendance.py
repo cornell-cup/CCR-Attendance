@@ -8,12 +8,13 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+from CCRResources import res
+
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CREDENTIAL_FILE_NAME = 'ccr.attendance.json'
 
 def get_credentials(clientSecret,applicationName,scope):
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = res(".credentials")
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,CREDENTIAL_FILE_NAME)

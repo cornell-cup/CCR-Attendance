@@ -9,8 +9,9 @@ from kivy.uix.button import Button
 from kivy.lang import Builder
 from kivy.uix.image import Image, AsyncImage
 from kivy.core.image import Image
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.clock import Clock
+from kivy.animation import Animation
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.graphics import BorderImage, Color, Rectangle, Line
 from CCRAttendanceNode import CCRAttendanceNode
@@ -58,10 +59,16 @@ ScreenManagement:
             size : self.size
             Color:
                 rgba: 1, 1, 1, 1
-    Label: 
-        text: "CORNELL CUP ATTENDANCE"
-        color: 0,0,0,1
-        font_size: 50
+    AnchorLayout:
+        id: scanning_anchor
+        anchor_x:'center'
+        anchor_y:'bottom'
+        Label: 
+            id: scanning_text
+            size_hint: None, None
+            text: "SCANNING FOR ID"
+            color: .61,.61,.61,1
+            font_size: 50
     
 <GoodbyeScreen>:
     name: "goodbye"
@@ -139,6 +146,20 @@ ScreenManagement:
             text: "Which subteam are you on?"
             color: 0,0,0,1
             font_size: 30
+
+<LoadingWidget>:
+    Image:
+        source: '../res/logo.png'
+        center: self.parent.center
+        size: 256, 256
+        canvas.before:
+            PushMatrix
+            Rotate:
+                angle: root.angle
+                origin: self.center
+        canvas.after:
+            PopMatrix
+        
 '''
 
 currentUser = User()
@@ -223,16 +244,39 @@ class TeamScreen(Screen):
     def update_team(self, team):
         currentUser.team = team
 
+class LoadingWidget(Widget):
+    angle = NumericProperty(0)
+    def __init__(self,**kwargs):
+        super(LoadingWidget, self).__init__(**kwargs)
+        anim = Animation(angle = 360, duration=2) 
+        anim += Animation(angle = 360, duration=2)
+        anim.repeat = True
+        anim.start(self)        
+
+    def on_angle(self, item, angle):
+        if angle == 360:
+            item.angle = 0
+
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
         Clock.schedule_once(self.user_swiped)
-        #Clock.schedule_once(node.async_get_user_swipe(self.user_swiped))
+        self.add_widget(LoadingWidget())
+        Clock.schedule_once(self.start_fade_in)
+
+    def start_fade_in(self,*args):
+        anim = Animation(color=[0.61,0.61,0.61,0.0],duration=1.0)
+        anim.bind(on_complete=self.start_fade_out)
+        anim.start(self.ids.scanning_text)
+
+    def start_fade_out(self,*args):
+        anim = Animation(color=[0.61,0.61,0.61,1.0],duration=1.5)
+        anim.bind(on_complete=self.start_fade_in)
+        anim.start(self.ids.scanning_text)
 
     def user_swiped(self,dt):
         currentUser.id = id
         self.manager.current = "meeting"
-
 class ScreenManagement(ScreenManager):
     pass
 

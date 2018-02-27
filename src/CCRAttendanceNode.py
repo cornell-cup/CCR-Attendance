@@ -88,15 +88,15 @@ class CCRAttendanceNode:
         read_thread = threading.Thread(target=lambda:callback(self.get_swipe()))
         read_thread.start()
 
-    def log_swipe_in(self,id,meeting,team):
-        active_user_data = self.db.log_swipe_in(id,meeting,team)
+    def log_swipe_in(self,id,name,meeting,team):
+        active_user_data = self.db.log_swipe_in(id,name,meeting,team)
         self._cache["active_users"]["data"].append(active_user_data)
 
     def log_swipe_out(self,id):
         if not self.cache_entry_expired("active_users"):
             for entry in self._cache["active_users"]["data"]:
                 if int(entry["id"]) == id:
-                    if entry["row"] == -1:
+                    if entry["row"] == -1 or entry["row"] is None:
                         active_users = self.db.log_swipe_out(id)
                         self.update_cache_entry("active_users",active_users)
                     else:

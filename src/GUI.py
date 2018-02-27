@@ -210,7 +210,7 @@ class MeetingScreen(Screen):
     def _finish_init(self,dt):
         for meeting in meetings:
             button = Button(text=meeting, font_size = 25)
-            button.bind(on_press=lambda x : self.update_meeting(meeting))
+            button.bind(on_press=lambda x, m=meeting:self.update_meeting(m))
             button.bind(on_release=self.move_to_team)
             self.ids.box_layout_top.add_widget(button)
 
@@ -229,7 +229,7 @@ class TeamScreen(Screen):
         Clock.schedule_once(self._finish_init)
 
     def move_to_done(self, *args):
-        node.log_swipe_in(currentUser.id, currentUser.meeting, currentUser.team)
+        node.log_swipe_in(currentUser.id, currentUser.name, currentUser.meeting, currentUser.team)
         self.manager.current = "done"
 
     def _finish_init(self, dt):
@@ -238,7 +238,7 @@ class TeamScreen(Screen):
 
         for project in projects:
             button = Button(text=project, font_size = 40)
-            button.bind(on_press=lambda x : self.update_team(project))
+            button.bind(on_press=lambda x, p=project:self.update_team(p))
             button.bind(on_release=self.move_to_done)
             grid_layout.add_widget(button)
 

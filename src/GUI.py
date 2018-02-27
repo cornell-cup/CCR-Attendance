@@ -19,6 +19,8 @@ import time
 import CCRResources
 from CCRResources import res
 from kivy.config import Config
+import signal
+
 #Config.set('graphics', 'fullscreen', 'auto')
 Config.set('graphics','show_cusor',0)
 Config.write()
@@ -166,6 +168,15 @@ node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("
 meetings = node.get_meetings()
 projects = node.get_projects()
 currentUser = User()
+
+
+def end_read(signal,frame):
+    print "Ctrl+C captured, ending....."
+    node.stop_swipe_logging_job()
+    App.get_running_app().stop()
+    exit(0)
+
+signal.signal(signal.SIGINT,end_read)
 
 class DoneScreen(Screen):
     done_message = StringProperty()

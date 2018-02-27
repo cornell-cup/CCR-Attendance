@@ -93,7 +93,7 @@ class CCRAttendanceDB:
             valueInputOption="RAW", body=body).execute()
             
         if resp != []:
-            return {"success":True,"user:":userID,"direction":"OUT"}
+            return (swiped_in_users,{"success":True,"user:":userID,"direction":"OUT"})
 
     def get_projects_list(self):
         result = self._service.spreadsheets().values().get(
@@ -114,8 +114,8 @@ class CCRAttendanceDB:
         users =  user_cache if user_cache != None else self.get_user_id_map()
         for user_id_map in users:
             if user_id_map[1] == str(id):
-                return user_id_map[0]
-        return  None
+                return (users,user_id_map[0])
+        return (users,None)
 
     def register_user(self,name,uid):
         values = [[name,uid]]

@@ -162,8 +162,8 @@ ScreenManagement:
 '''
 
 node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-projects = node.db.get_projects_list()
-meetings = node.db.get_meetings_list()
+meetings = node.get_meetings()
+projects = node.get_projects()
 currentUser = User()
 
 class DoneScreen(Screen):
@@ -229,8 +229,7 @@ class TeamScreen(Screen):
 
     def move_to_done(self, *args):
         self.manager.current = "done"
-        #node.log_swipe_in(currentUser.name, currentUser.meeting,
-                          #currentUser.team)
+        node.log_swipe_in(currentUser.name, currentUser.meeting, currentUser.team)
 
     def _finish_init(self, dt):
         self.team_message = currentUser.greeting
@@ -268,8 +267,12 @@ class IdleScreen(Screen):
         Clock.schedule_once(self.start_swipe_job)
         
     def start_swipe_job(self,*args):
-        node.async_get_user_name_swipe(self.user_swiped)
-            
+        if node.has_reader():
+            node.async_get_user_name_swipe(self.user_swiped)
+        elif node.has_swipe_available():
+            id,name = node.pop_swipe()
+            self.user_swiped(id,name)
+    
     def start_fade_in(self,*args):
         anim = Animation(color=[0.61,0.61,0.61,0.0],duration=1.0)
         anim.bind(on_complete=self.start_fade_out)
@@ -280,11 +283,14 @@ class IdleScreen(Screen):
         anim.bind(on_complete=self.start_fade_in)
         anim.start(self.ids.scanning_text)
 
-    def user_swiped(self,name):
+    def user_swiped(self,id,name):
         global currentUser
-	currentUser.name = name
-        self.manager.current = "meeting"
-        print(currentUser.name)
+        if node.user_is_swiped_in(id):
+            node.log_swipe_out(id)
+            self.manager.current = "goodbye"
+        else:
+            currentUser.name = name
+            self.manager.current = "meeting"
         
 class ScreenManagement(ScreenManager):
     pass 

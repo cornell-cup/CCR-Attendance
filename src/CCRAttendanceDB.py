@@ -41,7 +41,7 @@ class CCRAttendanceDB:
 
         active_users = []
         for user_data in active_data:
-            active_users.append({"user":user_data[0],"time_in":user_data[1],"row":user_data[2]})
+            active_users.append({"id":user_data[0],"time_in":user_data[1],"row":user_data[2]})
 
         return active_users
         
@@ -58,7 +58,8 @@ class CCRAttendanceDB:
             print("Invalid config file: " + self._config)
 
     def log_swipe_in(self,userID,meeting,team):
-        values = [[userID,meeting,team,time.time()]]
+        time_in = time.time()
+        values = [["",userID,meeting,team,time_in]]
         body = {'values': values}
 
         resp = self._service.spreadsheets().values().append(
@@ -66,7 +67,7 @@ class CCRAttendanceDB:
             body=body).execute()
 
         if resp != []:
-            return {"success":True,"user:":userID,"direction":"IN"}
+            return {"id":userID,"time_in":time_in,"row":-1}
 
     def validate_uid(self,uid):
         return self.get_name_from_ID(uid) != None
@@ -75,25 +76,25 @@ class CCRAttendanceDB:
         values = [['TIMEOUT']]
         body = {'values': values}
         self._service.spreadsheets().values().update(
-            spreadsheetId=self._config["sheet_id"], range="F"+str(row),
+            spreadsheetId=self._config["sheet_id"], range="G"+str(row),
             valueInputOption="RAW", body=body).execute()
 
-
     def log_swipe_out(self,userID,sessionRow=None,cached_active_users=None):
+        swiped_in_users = []
         if sessionRow == None:
             swiped_in_users =  cached_active_users if cached_active_users != None else self.get_active_users()
             for swiped_data in swiped_in_users:
-                if swiped_data["user"] == userID:
+                if int(swiped_data["id"]) == int(userID):
+
                     sessionRow = swiped_data["row"]
 
         values = [[time.time()]]
         body = {'values': values}
         resp = self._service.spreadsheets().values().update(
-            spreadsheetId=self._config["sheet_id"], range="E"+str(sessionRow),
+            spreadsheetId=self._config["sheet_id"], range="F"+str(sessionRow),
             valueInputOption="RAW", body=body).execute()
             
-        if resp != []:
-            return (swiped_in_users,{"success":True,"user:":userID,"direction":"OUT"})
+        return swiped_in_users
 
     def get_projects_list(self):
         result = self._service.spreadsheets().values().get(
@@ -113,12 +114,12 @@ class CCRAttendanceDB:
     def get_name_from_ID(self,id,user_cache=None):
         users =  user_cache if user_cache != None else self.get_user_id_map()
         for user_id_map in users:
-            if user_id_map[1] == str(id):
-                return (users,user_id_map[0])
+            if user_id_map[0] == str(id):
+                return (users,user_id_map[1])
         return (users,None)
 
     def register_user(self,name,uid):
-        values = [[name,uid]]
+        values = [[uid,name]]
         body = {'values': values}
 
         self._service.spreadsheets().values().append(

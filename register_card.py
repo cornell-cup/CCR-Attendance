@@ -18,7 +18,7 @@ except ImportError:
     flags = None
 
 CCRResources.populate("res")
-interface = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
+db = CCRAttendance.open_db_interface(flags.client_secret,flags.application_name,flags.config_file)
 reader = RpiRFID()
 read = True
 
@@ -38,7 +38,7 @@ def main():
         uid = reader.read_value()
         print("Found card: {0}").format(uid)
         name = raw_input("Name: ")
-        interface.register_user(name,uid)
+        db.register_user(name,uid)
 	print("Registered User {0} with id {1}").format(name,uid)
 
 main()

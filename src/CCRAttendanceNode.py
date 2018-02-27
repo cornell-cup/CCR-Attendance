@@ -26,12 +26,12 @@ class CCRAttendanceNode:
         self._cache = {
                 "users" : {
                     "data" : [],
-                    "lifetime":60,
+                    "lifetime":60*5,
                     "last_update":0
                 },
                 "active_users" : {
                     "data" : [],
-                    "lifetime":60,
+                    "lifetime":60*5,
                     "last_update":0
                 },
                 "meetings" : {
@@ -68,7 +68,7 @@ class CCRAttendanceNode:
     def get_user_name_swipe(self):
         id = self.get_swipe()
         if not self.cache_entry_expired("users"):
-            _, name = self.db.get_name_from_ID(id,self._cache["users"])
+            _, name = self.db.get_name_from_ID(id,self._cache["users"]["data"])
             return (id,name)
         else:
             users, name =  self.db.get_name_from_ID(id)
@@ -81,24 +81,47 @@ class CCRAttendanceNode:
             self.queue_swipe(self.get_user_name_swipe())
 
     def async_get_user_name_swipe(self,callback):
-        self.async_get_swipe(lambda id,name:callback(self.db.get_name_from_ID(id,name)))
+        read_thread = threading.Thread(target=lambda:callback(*self.get_user_name_swipe()))
+        read_thread.start()
 
     def async_get_swipe(self,callback):
         read_thread = threading.Thread(target=lambda:callback(self.get_swipe()))
         read_thread.start()
 
     def log_swipe_in(self,id,meeting,team):
-        self.db.log_swipe_in(id,meeting,team)
+        active_user_data = self.db.log_swipe_in(id,meeting,team)
+        self._cache["active_users"]["data"].append(active_user_data)
 
     def log_swipe_out(self,id):
         if not self.cache_entry_expired("active_users"):
-            self.db.log_swipe_out(id,self._cache["active_users"])
+            for entry in self._cache["active_users"]["data"]:
+                if int(entry["id"]) == id:
+                    if entry["row"] == -1:
+                        active_users = self.db.log_swipe_out(id)
+                        self.update_cache_entry("active_users",active_users)
+                    else:
+                        self.db.log_swipe_out(id,entry["row"])
+
+            #remove active_user from cache
+            for user_data in self._cache["active_users"]["data"]:
+                if int(user_data["id"]) == int(id):
+                    self._cache["active_users"]["data"].remove(user_data)
         else:
             active_users, _ = self.db.log_swipe_out(id)
             self.update_cache_entry("active_users",active_users)
 
-    def user_is_swiped_in(self,id): 
-        return id in self.db.get_active_users()
+    def is_user_swiped_in(self,id): 
+        active_users = []
+        if self.cache_entry_expired("active_users"):
+            active_users = self.db.get_active_users()
+            self.update_cache_entry("active_users",active_users)
+        else:
+            active_users = self._cache["active_users"]["data"]
+
+        for entry in active_users:
+            if (int(entry["id"])) == (int(id)):
+                return True
+        return False
 
     def start_swipe_logging_job(self):
         t = threading.Thread(target=self._do_swipe_listening_in_job)
@@ -106,6 +129,7 @@ class CCRAttendanceNode:
 
     def stop_swipe_logging_job(self):
         self._running = False
+        self._reader.stop()
 
     # is the swipe queue not empty
     def has_swipe_available(self):

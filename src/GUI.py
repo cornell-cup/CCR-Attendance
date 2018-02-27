@@ -26,6 +26,7 @@ CCRResources.populate("res")
 
 class User:
     def __init__(self):
+        self.id = -1
         self.name = ""
         self.direction = ""
         self.row = ""
@@ -103,7 +104,7 @@ ScreenManagement:
         Label:
             text: "Thanks! You've been signed in."
             color: 0,0,0,1
-            font_sze: 30
+            font_sze: 60
         
 <MeetingScreen>:
     name: "meeting"
@@ -124,7 +125,7 @@ ScreenManagement:
         Label:
             text: "What type of meeting are you signing in to?"
             color: 0,0,0,1
-            font_size: 30
+            font_size: 40
 
 <TeamScreen>:
     name: "teams"
@@ -144,7 +145,7 @@ ScreenManagement:
         Label:
             text: "Which subteam are you on?"
             color: 0,0,0,1
-            font_size: 30
+            font_size: 40
 
 <LoadingWidget>:
     Image:
@@ -228,14 +229,15 @@ class TeamScreen(Screen):
         Clock.schedule_once(self._finish_init)
 
     def move_to_done(self, *args):
+        node.log_swipe_in(currentUser.id, currentUser.meeting, currentUser.team)
         self.manager.current = "done"
-        node.log_swipe_in(currentUser.name, currentUser.meeting, currentUser.team)
 
     def _finish_init(self, dt):
         self.team_message = currentUser.greeting
-        grid_layout = GridLayout(cols=2)
+        grid_layout = GridLayout(rows=2)
+
         for project in projects:
-            button = Button(text=project, font_size = 25)
+            button = Button(text=project, font_size = 40)
             button.bind(on_press=lambda x : self.update_team(project))
             button.bind(on_release=self.move_to_done)
             grid_layout.add_widget(button)
@@ -264,8 +266,10 @@ class IdleScreen(Screen):
         super(IdleScreen, self).__init__(**kwargs)
         self.add_widget(LoadingWidget())
         Clock.schedule_once(self.start_fade_in)
-        Clock.schedule_once(self.start_swipe_job)
         
+    def on_enter(self):
+        self.start_swipe_job()
+
     def start_swipe_job(self,*args):
         if node.has_reader():
             node.async_get_user_name_swipe(self.user_swiped)
@@ -285,11 +289,12 @@ class IdleScreen(Screen):
 
     def user_swiped(self,id,name):
         global currentUser
-        if node.user_is_swiped_in(id):
+        currentUser.name = name
+        currentUser.id = id
+        if node.is_user_swiped_in(id):
             node.log_swipe_out(id)
             self.manager.current = "goodbye"
         else:
-            currentUser.name = name
             self.manager.current = "meeting"
         
 class ScreenManagement(ScreenManager):

@@ -113,9 +113,9 @@ class CCRAttendanceDB:
     def get_name_from_ID(self,id,user_cache=None):
         users =  user_cache if user_cache != None else self.get_user_id_map()
         for user_id_map in users:
-            if user_id_map[0] == id:
-                return user_id_map[1]
-        return None
+            if user_id_map[1] == str(id):
+                return user_id_map[0]
+        return  None
 
     def register_user(self,name,uid):
         values = [[name,uid]]

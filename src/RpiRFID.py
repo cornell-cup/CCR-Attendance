@@ -1,7 +1,7 @@
 import MFRC522
 import time
 
-rfid_read_sleep = 0.001  # seconds
+rfid_read_sleep = 0.5  # seconds
 
 
 class RpiRFID:
@@ -20,7 +20,7 @@ class RpiRFID:
             if status == MFRC522.MFRC522.MI_OK:    
                 for byte in uid:
                     uid_int = uid_int << 8 | byte
-            return uid_int
+                return uid_int
 
     def stop(self):
         self._do_read = False

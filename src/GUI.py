@@ -9,8 +9,9 @@ from kivy.uix.button import Button
 from kivy.lang import Builder
 from kivy.uix.image import Image, AsyncImage
 from kivy.core.image import Image
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.clock import Clock
+from kivy.animation import Animation
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.graphics import BorderImage, Color, Rectangle, Line
 from CCRAttendanceNode import CCRAttendanceNode
@@ -19,13 +20,13 @@ import CCRResources
 from CCRResources import res
 from kivy.config import Config
 #Config.set('graphics', 'fullscreen', 'auto')
-
+Config.set('graphics','show_cusor',0)
+Config.write()
 CCRResources.populate("res")
 
 class User:
     def __init__(self):
         self.name = ""
-        self.id = ""
         self.direction = ""
         self.row = ""
         self.greeting = ""
@@ -38,7 +39,6 @@ KV = '''
 #:import FadeTransition kivy.uix.screenmanager.FadeTransition
 #:import Clock kivy.clock.Clock
 ScreenManagement:
-    transition: FadeTransition()
     IdleScreen:
         id: idle
     MeetingScreen:
@@ -58,10 +58,16 @@ ScreenManagement:
             size : self.size
             Color:
                 rgba: 1, 1, 1, 1
-    Label: 
-        text: "CORNELL CUP ATTENDANCE"
-        color: 0,0,0,1
-        font_size: 50
+    AnchorLayout:
+        id: scanning_anchor
+        anchor_x:'center'
+        anchor_y:'bottom'
+        Label: 
+            id: scanning_text
+            size_hint: None, None
+            text: "SCANNING FOR ID"
+            color: .61,.61,.61,1
+            font_size: 50
     
 <GoodbyeScreen>:
     name: "goodbye"
@@ -139,21 +145,36 @@ ScreenManagement:
             text: "Which subteam are you on?"
             color: 0,0,0,1
             font_size: 30
+
+<LoadingWidget>:
+    Image:
+        source: '../res/logo.png'
+        center: self.parent.center
+        size: 256, 256
+        canvas.before:
+            PushMatrix
+            Rotate:
+                angle: root.angle
+                origin: self.center
+        canvas.after:
+            PopMatrix
+        
 '''
 
-currentUser = User()
 node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
 projects = node.db.get_projects_list()
 meetings = node.db.get_meetings_list()
+currentUser = User()
 
 class DoneScreen(Screen):
+    done_message = StringProperty()
     def __init__(self, **kwargs):
         super(DoneScreen, self).__init__(**kwargs)
+    
+    def on_enter(self):
         global currentUser
         self.done_message = currentUser.greeting
         currentUser = User()
-
-    def on_enter(self):
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
@@ -161,13 +182,14 @@ class DoneScreen(Screen):
 
 
 class GoodbyeScreen(Screen):
+    goodbye_message = StringProperty()
     def __init__(self, **kwargs):
         super(GoodbyeScreen, self).__init__(**kwargs)
+        
+    def on_enter(self):
         global currentUser
         self.goodbye_message = "Goodbye, " + currentUser.name + "!"
         currentUser = User()
-
-    def on_enter(self):
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
@@ -179,18 +201,20 @@ class MeetingScreen(Screen):
     def __init__(self, **kwargs):
         super(MeetingScreen, self).__init__(**kwargs)
         Clock.schedule_once(self._finish_init)
-
+    
+    def on_enter(self):
+        global currentUser
+        self.meeting_message = "Welcome, " + currentUser.name + "!"
+        
     def _finish_init(self,dt):
         for meeting in meetings:
             button = Button(text=meeting, font_size = 25)
             button.bind(on_press=lambda x : self.update_meeting(meeting))
             button.bind(on_release=self.move_to_team)
             self.ids.box_layout_top.add_widget(button)
-        
-
-        self.meeting_message = "Welcome, " + currentUser.name + "!"
 
     def update_meeting(self, meeting):
+        global currentUser
         currentUser.meeting = meeting
 
     def move_to_team(self,dt):
@@ -198,17 +222,18 @@ class MeetingScreen(Screen):
 
 
 class TeamScreen(Screen):
+    team_message = StringProperty()
     def __init__(self, **kwargs):
         super(TeamScreen, self).__init__(**kwargs)
-        self.team_message = currentUser.greeting
         Clock.schedule_once(self._finish_init)
 
     def move_to_done(self, *args):
         self.manager.current = "done"
-        node.log_swipe_in(currentUser.id, currentUser.meeting,
-                          currentUser.team)
+        #node.log_swipe_in(currentUser.name, currentUser.meeting,
+                          #currentUser.team)
 
     def _finish_init(self, dt):
+        self.team_message = currentUser.greeting
         grid_layout = GridLayout(cols=2)
         for project in projects:
             button = Button(text=project, font_size = 25)
@@ -219,19 +244,50 @@ class TeamScreen(Screen):
         self.ids.teams_box.add_widget(grid_layout)
 
     def update_team(self, team):
+        global currentUser
         currentUser.team = team
+
+class LoadingWidget(Widget):
+    angle = NumericProperty(0)
+    def __init__(self,**kwargs):
+        super(LoadingWidget, self).__init__(**kwargs)
+        anim = Animation(angle = 360, duration=2) 
+        anim += Animation(angle = 360, duration=2)
+        anim.repeat = True
+        anim.start(self)        
+
+    def on_angle(self, item, angle):
+        if angle == 360:
+            item.angle = 0
 
 class IdleScreen(Screen):
     def __init__(self, **kwargs):
         super(IdleScreen, self).__init__(**kwargs)
-        Clock.schedule_once(node.async_get_user_name_swipe(self.user_swiped))
+        self.add_widget(LoadingWidget())
+        Clock.schedule_once(self.start_fade_in)
+        Clock.schedule_once(self.start_swipe_job)
+        
+    def start_swipe_job(self,*args):
+        node.async_get_user_name_swipe(self.user_swiped)
+            
+    def start_fade_in(self,*args):
+        anim = Animation(color=[0.61,0.61,0.61,0.0],duration=1.0)
+        anim.bind(on_complete=self.start_fade_out)
+        anim.start(self.ids.scanning_text)
 
-    def user_swiped(self,dt):
-        currentUser.id = id
+    def start_fade_out(self,*args):
+        anim = Animation(color=[0.61,0.61,0.61,1.0],duration=1.5)
+        anim.bind(on_complete=self.start_fade_in)
+        anim.start(self.ids.scanning_text)
+
+    def user_swiped(self,name):
+        global currentUser
+	currentUser.name = name
         self.manager.current = "meeting"
-
+        print(currentUser.name)
+        
 class ScreenManagement(ScreenManager):
-    pass
+    pass 
 
 presentation = Builder.load_string(KV)
 

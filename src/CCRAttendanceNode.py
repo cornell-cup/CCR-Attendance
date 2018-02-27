@@ -39,16 +39,15 @@ class CCRAttendanceNode:
         return self.db.get_name_from_ID(id)
 
     def _do_swipe_listening_in_job(self):
+        self._running = True
         while self._running:
-            return self.get_user_name_swipe()
+            self.queue_swipe(self.get_user_name_swipe())
 
     def async_get_user_name_swipe(self,callback):
-        self.async_get_user_name_swipe(lambda id :
-            callback(self.db.get_name_from_ID(id)))
+        self.async_get_swipe(lambda id:callback(self.db.get_name_from_ID(id)))
 
     def async_get_swipe(self,callback):
-        read_thread = threading.Thread(target=lambda :
-            callback(self.get_swipe()))
+        read_thread = threading.Thread(target=lambda:callback(self.get_swipe()))
         read_thread.start()
 
     def log_swipe_in(self,id,meeting,team):

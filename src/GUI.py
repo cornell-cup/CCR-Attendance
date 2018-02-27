@@ -24,11 +24,22 @@ import signal
 Config.set('graphics','show_cusor',0)
 Config.write()
 CCRResources.populate("res")
+node = None
+meetings = []
+projects = []
 
-node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-meetings = node.get_meetings()
-projects = node.get_projects()
-currentUser = User()
+def do_connect():
+    try:
+        global node
+        global meetings
+        global projects
+        node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
+        meetings = node.get_meetings()
+        projects = node.get_projects()
+    except Exception:
+            time.sleep(10)
+            print "Failed to connect. Trying again in 10 seconds."
+            do_connect()
 
 def end_read(signal,frame):
     print "Ctrl+C captured, ending....."
@@ -47,6 +58,7 @@ class User:
         self.greeting = ""
         self.meeting = ""
         self.team = ""
+currentUser = User()
 
 class DoneScreen(Screen):
     done_message = StringProperty()
@@ -70,13 +82,12 @@ class GoodbyeScreen(Screen):
         
     def on_enter(self):
         global currentUser
-        self.goodbye_message = "Goodbye, " + currentUser.name + "!"
+        self.goodbye_message = "Goodbye, " + currentUser.name[:currentUser.name.find(" ")] + "!"
         currentUser = User()
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
         self.manager.current = "idle"
-
 
 class MeetingScreen(Screen):
     meeting_message = StringProperty()
@@ -86,7 +97,7 @@ class MeetingScreen(Screen):
     
     def on_enter(self):
         global currentUser
-        self.meeting_message = "Welcome, " + currentUser.name + "!"
+        self.meeting_message = "Welcome, " + currentUser.name[:currentUser.name.find(" ")] + "!"
         
     def _finish_init(self,dt):
         for meeting in meetings:
@@ -180,6 +191,8 @@ class IdleScreen(Screen):
         
 class ScreenManagement(ScreenManager):
     pass 
+
+do_connect()
 
 presentation = Builder.load_file(res("gui.kv"))
 

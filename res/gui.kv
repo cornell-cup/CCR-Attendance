@@ -1,0 +1,123 @@
+
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Clock kivy.clock.Clock
+ScreenManagement:
+    IdleScreen:
+        id: idle
+    MeetingScreen:
+        id: meeting
+    TeamScreen:
+        id: teams
+    DoneScreen:
+        id: done
+    GoodbyeScreen:
+        id: goodbye
+    
+<IdleScreen>:
+    name: "idle"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            Color:
+                rgba: 1, 1, 1, 1
+    AnchorLayout:
+        id: scanning_anchor
+        anchor_x:'center'
+        anchor_y:'bottom'
+        Label: 
+            id: scanning_text
+            size_hint: None, None
+            text: "SCANNING FOR ID"
+            color: .61,.61,.61,1
+            font_size: 50
+    
+<GoodbyeScreen>:
+    name: "goodbye"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            Color:
+                rgba: 1, 1, 1, 1
+    Label: 
+        text: root.goodbye_message
+        color: 0,0,0,1
+        font_size: 60
+    
+<DoneScreen>:
+    name: "done"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            Color:
+                rgba: 1, 1, 1, 1
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: root.done_message
+            color: 0,0,0,1
+            font_size: 60
+        Image:
+            source: '../res/checkmark.png'
+            size_hint: 0.3, 0.4
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Label:
+            text: "Thanks! You've been signed in."
+            color: 0,0,0,1
+            font_sze: 60
+        
+<MeetingScreen>:
+    name: "meeting"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            Color:
+                rgba: 1, 1, 1, 1
+    BoxLayout:
+        id: box_layout_top
+        orientation: "vertical"
+        Label:
+            text: root.meeting_message
+            color: 0,0,0,1
+            font_size: 60
+            
+        Label:
+            text: "What type of meeting are you signing in to?"
+            color: 0,0,0,1
+            font_size: 40
+
+<TeamScreen>:
+    name: "teams"
+    canvas.before:
+        Rectangle:
+            pos : self.pos
+            size : self.size
+            Color:
+                rgba: 1, 1, 1, 1
+    BoxLayout:
+        id: teams_box
+        orientation : "vertical"
+        Label:
+            text: root.team_message
+            color: 0,0,0,1
+            font_size: 60
+        Label:
+            text: "Which subteam are you on?"
+            color: 0,0,0,1
+            font_size: 40
+
+<LoadingWidget>:
+    Image:
+        source: '../res/logo.png'
+        center: self.parent.center
+        size: 256, 256
+        canvas.before:
+            PushMatrix
+            Rotate:
+                angle: root.angle
+                origin: self.center
+        canvas.after:
+            PopMatrix

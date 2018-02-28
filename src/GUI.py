@@ -21,10 +21,33 @@ from CCRResources import res
 from kivy.config import Config
 import signal
 
-#Config.set('graphics', 'fullscreen', 'auto')
 Config.set('graphics','show_cusor',0)
 Config.write()
 CCRResources.populate("res")
+node = None
+meetings = []
+projects = []
+
+def do_connect():
+    try:
+        global node
+        global meetings
+        global projects
+        node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
+        meetings = node.get_meetings()
+        projects = node.get_projects()
+    except Exception:
+            time.sleep(10)
+            print "Failed to connect. Trying again in 10 seconds."
+            do_connect()
+
+def end_read(signal,frame):
+    print "Ctrl+C captured, ending....."
+    node.stop_swipe_logging_job()
+    App.get_running_app().stop()
+    exit(0)
+
+signal.signal(signal.SIGINT,end_read)
 
 class User:
     def __init__(self):
@@ -35,148 +58,7 @@ class User:
         self.greeting = ""
         self.meeting = ""
         self.team = ""
-
-
-
-KV = '''
-#:import FadeTransition kivy.uix.screenmanager.FadeTransition
-#:import Clock kivy.clock.Clock
-ScreenManagement:
-    IdleScreen:
-        id: idle
-    MeetingScreen:
-        id: meeting
-    TeamScreen:
-        id: teams
-    DoneScreen:
-        id: done
-    GoodbyeScreen:
-        id: goodbye
-    
-<IdleScreen>:
-    name: "idle"
-    canvas.before:
-        Rectangle:
-            pos : self.pos
-            size : self.size
-            Color:
-                rgba: 1, 1, 1, 1
-    AnchorLayout:
-        id: scanning_anchor
-        anchor_x:'center'
-        anchor_y:'bottom'
-        Label: 
-            id: scanning_text
-            size_hint: None, None
-            text: "SCANNING FOR ID"
-            color: .61,.61,.61,1
-            font_size: 50
-    
-<GoodbyeScreen>:
-    name: "goodbye"
-    canvas.before:
-        Rectangle:
-            pos : self.pos
-            size : self.size
-            Color:
-                rgba: 1, 1, 1, 1
-    Label: 
-        text: root.goodbye_message
-        color: 0,0,0,1
-        font_size: 60
-    
-<DoneScreen>:
-    name: "done"
-    canvas.before:
-        Rectangle:
-            pos : self.pos
-            size : self.size
-            Color:
-                rgba: 1, 1, 1, 1
-    BoxLayout:
-        orientation: "vertical"
-        Label:
-            text: root.done_message
-            color: 0,0,0,1
-            font_size: 60
-        Image:
-            source: '../res/checkmark.png'
-            size_hint: 0.3, 0.4
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        Label:
-            text: "Thanks! You've been signed in."
-            color: 0,0,0,1
-            font_sze: 60
-        
-<MeetingScreen>:
-    name: "meeting"
-    canvas.before:
-        Rectangle:
-            pos : self.pos
-            size : self.size
-            Color:
-                rgba: 1, 1, 1, 1
-    BoxLayout:
-        id: box_layout_top
-        orientation: "vertical"
-        Label:
-            text: root.meeting_message
-            color: 0,0,0,1
-            font_size: 60
-            
-        Label:
-            text: "What type of meeting are you signing in to?"
-            color: 0,0,0,1
-            font_size: 40
-
-<TeamScreen>:
-    name: "teams"
-    canvas.before:
-        Rectangle:
-            pos : self.pos
-            size : self.size
-            Color:
-                rgba: 1, 1, 1, 1
-    BoxLayout:
-        id: teams_box
-        orientation : "vertical"
-        Label:
-            text: root.team_message
-            color: 0,0,0,1
-            font_size: 60
-        Label:
-            text: "Which subteam are you on?"
-            color: 0,0,0,1
-            font_size: 40
-
-<LoadingWidget>:
-    Image:
-        source: '../res/logo.png'
-        center: self.parent.center
-        size: 256, 256
-        canvas.before:
-            PushMatrix
-            Rotate:
-                angle: root.angle
-                origin: self.center
-        canvas.after:
-            PopMatrix
-        
-'''
-
-node = CCRAttendanceNode(res("client_secret.json"), "CCR_Attendance_Node", res("db_config.json"))
-meetings = node.get_meetings()
-projects = node.get_projects()
 currentUser = User()
-
-
-def end_read(signal,frame):
-    print "Ctrl+C captured, ending....."
-    node.stop_swipe_logging_job()
-    App.get_running_app().stop()
-    exit(0)
-
-signal.signal(signal.SIGINT,end_read)
 
 class DoneScreen(Screen):
     done_message = StringProperty()
@@ -200,13 +82,12 @@ class GoodbyeScreen(Screen):
         
     def on_enter(self):
         global currentUser
-        self.goodbye_message = "Goodbye, " + currentUser.name + "!"
+        self.goodbye_message = "Goodbye, " + currentUser.name[:currentUser.name.find(" ")] + "!"
         currentUser = User()
         Clock.schedule_once(self.switch, 3)
 
     def switch(self, dt):
         self.manager.current = "idle"
-
 
 class MeetingScreen(Screen):
     meeting_message = StringProperty()
@@ -216,7 +97,7 @@ class MeetingScreen(Screen):
     
     def on_enter(self):
         global currentUser
-        self.meeting_message = "Welcome, " + currentUser.name + "!"
+        self.meeting_message = "Welcome, " + currentUser.name[:currentUser.name.find(" ")] + "!"
         
     def _finish_init(self,dt):
         for meeting in meetings:
@@ -311,7 +192,9 @@ class IdleScreen(Screen):
 class ScreenManagement(ScreenManager):
     pass 
 
-presentation = Builder.load_string(KV)
+do_connect()
+
+presentation = Builder.load_file(res("gui.kv"))
 
 class CCRAttendanceApp(App):
     def build(self):
